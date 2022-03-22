@@ -1,3 +1,4 @@
+from asyncore import write
 import csv
 import time
 from distutils.file_util import write_file
@@ -190,9 +191,11 @@ class Value_LCS():
         for sx in shx:
             dic_shx[sx] = dic[sx]
         after_var_value = self.fn(dic_shx)
-
+        self.write_to_handle(handle, after_var_value)
         # return handle, after_var_value
         
+
+    def write_to_handle(self, handle, after_var_value):
         ble = BLE_write()
         
         with open(self.path, 'w+', newline='') as f:
@@ -212,3 +215,12 @@ class Value_LCS():
             return [str(i)+str(j) for i in list1 for j in list2]
         return reduce(myfunc, lists)
 
+
+    def var_no_pcap(self, handles):
+        
+        after_strs = self.var_string.bad_strs_list() + self.var_string.pyload_var(2) + self.var_string.pyload_var(4) + self.var_string.pyload_var(6) + self.var_string.pyload_var(8) + self.var_string.pyload_var(10) + self.var_string.pyload_var(12) + self.var_string.pyload_var(20)
+
+        for hand in handles:
+            self.write_to_handle(hand, after_strs)
+
+        

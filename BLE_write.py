@@ -22,6 +22,7 @@ class BLE_write():
         # Get service & characteristic
         wriList = {}
         services = self._conn.getServices()
+        han_list = []
         for svc in services:
             print("[+]        Service: ", svc.uuid)
             characteristics = svc.getCharacteristics()
@@ -49,17 +50,14 @@ class BLE_write():
                 #         # print(uu + "notify failed!!")
                 #         continue
                 
-
+                
                 # write
-                # if Properties.find('WRITE'):
-                #     wriList[svc.uuid]= uu                   #保存service uuid和characteristic uuid       
+                if Properties.find('WRITE'):
+                    han = charac.getHandle()
+                    wriList[svc.uuid]= uu                   #保存service uuid和characteristic uuid 
+                    if han not in han_list:      
+                        han_list.append(han)
 
-                #     #charac.write(data)
-                #     #print("      try write to: ", uu )
-                #     #print("        write data: ", data)
-                #     #print("    write_response: ", response)
-                # except BTLEException:
-                #     continue
                 '''
                 if  Properties.find('WRITE NO RESPONSE WRITE'):
                     print("WRITE NO RESPONSE WRITE")
@@ -93,9 +91,10 @@ class BLE_write():
                     continue
                 '''
             print(60*'-')
+        return han_list
 
 
-    def wri_uuid(self, val, hand):
+    def wri_handle(self, val, hand):
 
         if self._conn == True:
             try:
@@ -107,4 +106,5 @@ class BLE_write():
             try:
                 self.tar_con()
             except BTLEException:
-                print("------------------connect failed! error" + ex + "please check fuzz result------------------------") 
+                print("------------------connect failed! error" + ex + "please check fuzz result------------------------")
+    def wri_ 
