@@ -3,6 +3,7 @@ import time
 from distutils.file_util import write_file
 
 import pandas as pd
+from BLEFuzz.BLE_write import BLE_write
 from Var_string import Var_string
 
 '''
@@ -10,6 +11,7 @@ from Var_string import Var_string
 '''
 
 class Value_LCS():
+
 
     def __init__(self):
         self._static = '**'
@@ -56,14 +58,20 @@ class Value_LCS():
                     if s02[0] not in self._simple_list:
                         self._simple_list.append(s02[0])
                 str = str[:i*2] + self._simple + str[(i+1)*2:]  
-                #print('2字节输入：', self._simple_list)
 
-                simple_var_list = self._simple_list + self.var_string.string_var(1)                        # 2字节数据同时调用“坏”字符串进行测试
+                simple_var_list = self._simple_list + self.var_string.string_var(1) + self.var_string.bad_strs_list() + self.var_string.pyload_var(2)   # 2字节数据同时调用“坏”字符串进行测试
+                
                 #self.write_var(simple_var_list)
                 after_var_data[0] = simple_var_list
 
                 break    
                 # return self._simple_list                                   #2字节数据
+            elif s01 == s02:
+                
+                after_var_data[0] = self.var_string.string_var(len(s01)*2) + self.var_string.pyload_var(len(s01)*2) + self.var_string.bad_strs_list()
+                
+                break
+ 
             elif s01[i] == s02[i]:              #当前字节相同  
                 str = str[:i*2] + s01[i] + str[(i+1)*2:]
 
@@ -102,17 +110,16 @@ class Value_LCS():
         if ly_count != 0:
             pyload_list = self.var_string.pyload_var(ly_count) + self.var_string.string_var(ly_count)
             after_var_data[i-1] = pyload_list
-            print("py_load_count:", ly_count)
+            # print("py_load_count:", ly_count)
 
-        if s1 == str:
-            
-        print("原字符串：", s1) 
-        print("比较字符：", s2)            
-        print("返回规则：", str)
-        #print(after_var_data)
+
+        # print("原字符串：", s1) 
+        # print("比较字符：", s2)            
+        # print("返回规则：", str)
+        # print(after_var_data)
         # print(self._simple_list)
         
-        self.write_var(after_var_data)              
+        self.write_var(handle, after_var_data)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
         m = [[0 for x in range(len2 + 1)] for y in range(len1 + 1)]
@@ -154,6 +161,8 @@ class Value_LCS():
 
     #字典处理
     '''
+    1. 
+
     传入pcap处理后的字典 格式：{'handle':['value1','value2']}
 
     判断value列表大小，调用find_lcseque函数生成变异字符串
@@ -172,22 +181,28 @@ class Value_LCS():
                         if len(valu[i]) == len(valu[j]):        # 包括一次重放
                             print('-'*60)
                             self.find_lcseque(handle, valu[i],valu[j])             
-                         
-    def write_var(self, dic):                           #按行写入
+
+
+                        
+    def write_var(self, handle, dic):                           #按行写入
         shx = sorted(dic.keys())
         dic_shx = {}
         for sx in shx:
             dic_shx[sx] = dic[sx]
         after_var_value = self.fn(dic_shx)
 
-
+        # return handle, after_var_value
+        
+        ble = BLE_write()
+        
         with open(self.path, 'w+', newline='') as f:
             csv_doc = csv.writer(f)
             for k in after_var_value:
+                ble.wri_uuid(handle, k)
+                print("write value：", k) 
+                k = k.replace('|', '')
                 csv_doc.writerow(k)
-                print("write value：", k)
-
-                
+                          
 
     def fn(self, dict):
         lists = list(dict.values())    
@@ -197,11 +212,3 @@ class Value_LCS():
             return [str(i)+str(j) for i in list1 for j in list2]
         return reduce(myfunc, lists)
 
-dic = {'0029':['01004ea4','02006783'],'0024':['1223','02']}
-val = Value_LCS()
-val.pro_dict(dic)
-
-# s1 = '0a00429c'
-# s2 = '0a00439e'
-# val = Value_LCS()
-# val.find_lcseque(s1, s2)

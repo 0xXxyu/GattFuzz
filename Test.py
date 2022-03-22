@@ -10,11 +10,5 @@ import time
 # s = binascii.hexlify(binascii.unhexlify(handl)[::-1])
 # print("大端：")
 
-s = ';CMD=$"reboot";$CMD'
-tch = b'0'
-
-#print(s.encode()+tch*2)
-
-if len(s) <= 22:
-    #print(s.encode+2*tch)
-    print(s.encode()+tch*(22-len(s.encode())))
+t = ['0000','ds']
+print(t.encode())

@@ -19,6 +19,50 @@ class Var_string():
     # 2调用坏字符串列表
     
     '''
+    def bad_strs_list(self):
+
+        bad_strs = [
+                "!@#$%%^#$%#$@#$%$$@#$%^^**(()",
+            "", 
+            "$(reboot)",
+            "$;reboot",
+            "%00",
+            "%00/",
+            '%0DCMD=$"reboot";$CMD',
+            "%0Dreboot",
+            "%n" * 500,
+            "%s" * 100,
+            "%s" * 500,
+            "%u0000",
+            "& reboot &",
+            "& reboot",
+            "&&CMD=$'reboot';$CMD",
+            '&&CMD=$"reboot";$CMD',
+            "&&reboot",
+            "&&reboot&&",
+            "..:..:..:..:..:..:..:..:..:..:..:..:..:",
+            "/%00/",
+            "/." * 5000,
+            "/.../" + "B" * 5000 + "\x00\x00",
+            "/.../.../.../.../.../.../.../.../.../.../",
+            "/../../../../../../../../../../../../boot.ini",
+            "/../../../../../../../../../../../../etc/passwd",
+            "/.:/" + "A" * 5000 + "\x00\x00",
+            "/\\" * 5000,
+            "/index.html|reboot|",
+            "; reboot",
+            ";CMD=$'reboot';$CMD",
+            ';CMD=$"reboot";$CMD',
+            ";id",
+            ]
+        bad_str_list = []
+        for st in bad_strs:
+            s = st.encode()
+            bad_str_list.append(s)
+
+        
+        return bad_str_list 
+
 
     #def __init__(self):
         #self.path = './fuzz_data.csv'                               #把变异数据写入./fuzz_data.csv    
@@ -29,7 +73,7 @@ class Var_string():
         
         
 
-    def pyload_var(size):
+    def pyload_var(self, size):         #pyload 随机数填充+边界填充
         min = 0
         max = int('f'*size, 16)               #转为10进制数据
 
@@ -61,7 +105,7 @@ class Var_string():
     #     csv_write = pd.DataFrame({"pyload":py_list, "simple":sim_list, "string":str_list, "count":count_list})
     #     csv_write.to_csv(self.path)
 
-    def string_var():
+    def string_var(self, str_len):           #坏字符串填充
         bad_strs = [
             "!@#$%%^#$%#$@#$%$$@#$%^^**(()",
         "", 
@@ -98,7 +142,9 @@ class Var_string():
         ]
         bad_str_all = []
         for bad_str in bad_strs:
-            bad_str_all.append(bad_str.encode())
+            if len(bad_str.encode()) <= str_len*2:
+                st = bad_str.encode()+(str_len*2-len(bad_str.encode()))*b'0'
+                bad_str_all.append(st)
         return bad_str_all
 
         '''
@@ -109,7 +155,7 @@ class Var_string():
         csv_write = pd.DataFrame({"pyload":py_list, "simple":sim_list, "string":bad_str, "count":count_list})
         csv_write.to_csv(self.path)
         '''
-    def count_var(self,count_str):
+    def count_var(self,count_str):      #count 边界填充+有界数填充          
         le = len(count_str)
         count_min = '0'*le               #count 取00和ff
         count_max = 'f'*le
@@ -136,3 +182,4 @@ class Var_string():
                 count = ran.randint(int(str,16), int(count_max, 16))
                 csv_writ.writerow(['NULL', 'NULL', 'NULL', count])
                 '''
+

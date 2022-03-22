@@ -3,12 +3,10 @@ from bluepy import btle
 from bluepy.btle import Peripheral,UUID
 from bluepy.btle import BTLEException
 
+
 class BLE_write():
 
-    def _init_(self, tar_mac):
-        self._mac = tar_mac
-
-    def tar_con(self):
+    def tar_con(self, tar_mac):
         scanner = btle.Scanner(0)
         devices = scanner.scan(3.0)
         print(" Begin scan:")
@@ -20,7 +18,7 @@ class BLE_write():
             else:
                 print("not find device, please check!")
 
-    def char(self):
+    def print_char(self):
         # Get service & characteristic
         wriList = {}
         services = self._conn.getServices()
@@ -98,8 +96,15 @@ class BLE_write():
 
 
     def wri_uuid(self, val, hand):
-        try:
-            write_respon = self._conn.writeCharacteristic(hand, val, withResponse=True)                ## python3.*  type(val)=byte
-            print("write:" + val +"to:" + hand + "response: "+ write_respon)
-        except BTLEException:
-            print("write:" + val +"to:" + hand + "NO response")    
+
+        if self._conn == True:
+            try:
+                write_respon = self._conn.writeCharacteristic(hand, val, withResponse=True)                ## python3.*  type(val)=byte
+                print("write:" + val +"to:" + hand + "response: "+ write_respon)
+            except BTLEException as ex:
+                print("write:" + val +"to:" + hand + "error" + ex)   
+        else:
+            try:
+                self.tar_con()
+            except BTLEException:
+                print("------------------connect failed! error" + ex + "please check fuzz result------------------------") 

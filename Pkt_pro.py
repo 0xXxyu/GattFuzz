@@ -17,7 +17,7 @@ class Pkt_pro():
         self.pcap_path = pcap_path
     
 
-    def pcap(self):
+    def pr_pcap(self):
         pkts = rdpcap(self.pcap_path)
         for pkt in pkts: 
             try:                               #需要添加mac判断
@@ -28,8 +28,8 @@ class Pkt_pro():
             except:
                 continue  
 
-        print(self.wri_handle)
-        print(self.handWvalue)
+        # print(self.wri_handle)
+        # print(self.handWvalue)
         return self.wri_handle, self.handWvalue
 
     def sub_pak(self, att):
@@ -62,6 +62,4 @@ class Pkt_pro():
 
         #return self.wri_handle, self.handWvalue
 
-pcap_path = './1.pcap'
-pkt = Pkt_pro(pcap_path)
-pkt.pcap()
+
