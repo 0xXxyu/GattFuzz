@@ -4,19 +4,21 @@ from scapy.all import *
 
 '''
 提取pcap中request_command handle和value到字典
+
+{'handle':['value1','value2']}
 '''
 
 
 class Pkt_pro():
 
-    def __init__(self):
+    def __init__(self, pcap_path):
         self.handWvalue = {}
         self.wri_handle = []
+        self.pcap_path = pcap_path
     
 
     def pcap(self):
-        pcap_path = './4.pcap'
-        pkts = rdpcap(pcap_path)
+        pkts = rdpcap(self.pcap_path)
         for pkt in pkts: 
             try:                               #需要添加mac判断
                 raw = pkt.raw_packet_cache                  # <class 'bytes'>
@@ -37,13 +39,12 @@ class Pkt_pro():
         #print(type(opcode))
         
         if opcode.hex() == '52':     #write command 0x52
-            handl = att[1:3]
-            print(len(handl))
-            print("handle:", type(handl))
-            value = att[3:]
-            #handl = handl.hex()
-            #value = value.hex()
-           
+
+            handl0 = att[2:3]+att[1:2]           # 小端转大端，<class 'bytes'>
+            value0 = att[3:]
+            handl = handl0.hex()
+            value = value0.hex()
+            
             if handl not in self.handWvalue.keys():
                 self.wri_handle.append(handl)
                 val = []
@@ -61,5 +62,6 @@ class Pkt_pro():
 
         #return self.wri_handle, self.handWvalue
 
-pkt = Pkt_pro()
+pcap_path = './1.pcap'
+pkt = Pkt_pro(pcap_path)
 pkt.pcap()
