@@ -4,7 +4,7 @@ import time
 from distutils.file_util import write_file
 
 import pandas as pd
-from BLEFuzz.BLE_write import BLE_write
+from BLE_write import BLE_write
 from Var_string import Var_string
 
 '''
