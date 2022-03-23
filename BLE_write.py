@@ -11,10 +11,10 @@ class BLE_write():
         devices = scanner.scan(3.0)
         print(" Begin scan:")
         for device in devices:
-            if device.addr == self._mac:
+            if device.addr == tar_mac:
                 for (adTypeCode, description, valueText) in device.getScanData():
                     addr_type = device.addrType
-                    self._conn = Peripheral(self._mac, addr_type)
+                    self._conn = Peripheral(tar_mac, addr_type)
 
     def print_char(self):
         # Get service & characteristic
