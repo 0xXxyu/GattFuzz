@@ -3,7 +3,7 @@ import csv
 import time
 from distutils.file_util import write_file
 
-import pandas as pd
+#import pandas as pd
 from BLE_write import BLE_write
 from Var_string import Var_string
 
@@ -12,7 +12,6 @@ from Var_string import Var_string
 '''
 
 class Value_LCS():
-
 
     def __init__(self):
         self._static = '**'
@@ -31,7 +30,6 @@ class Value_LCS():
     def find_lcseque(self, handle, s1, s2):
         from builtins import str
         timest = str(int(time.time()))
-        self.path = './'+ handle +'.csv'                               #把变异数据写入./fuzz_data.csv 
 
         after_var_data = {}
         len1 = int(len(s1)/2)
@@ -197,6 +195,7 @@ class Value_LCS():
 
     def write_to_handle(self, handle, after_var_value):
         ble = BLE_write()
+        self.path = './'+ handle +'.csv'                               #把变异数据写入./fuzz_data.csv 
         
         with open(self.path, 'w+', newline='') as f:
             csv_doc = csv.writer(f)
