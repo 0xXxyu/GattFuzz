@@ -7,14 +7,8 @@ from bluepy.btle import BTLEException
 class BLE_write():
 
     def tar_con(self, tar_mac):
-        scanner = btle.Scanner(0)
-        devices = scanner.scan(3.0)
-        print(" Begin scan:")
-        for device in devices:
-            if device.addr == tar_mac:
-                for (adTypeCode, description, valueText) in device.getScanData():
-                    addr_type = device.addrType
-                    self._conn = Peripheral(tar_mac, addr_type)
+        print(" Begin connect:")
+        self._conn = Peripheral(tar_mac)
 
     def print_char(self):
         # Get service & characteristic
