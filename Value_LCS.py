@@ -121,7 +121,7 @@ class Value_LCS():
         # print(after_var_data)
         # print(self._simple_list)
         
-        self.write_var(handle, after_var_data)              
+        self.write_value(handle, after_var_data)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
         m = [[0 for x in range(len2 + 1)] for y in range(len1 + 1)]
@@ -185,8 +185,16 @@ class Value_LCS():
                             self.find_lcseque(handle, valu[i],valu[j])             
 
 
+    def write_value(self, handle, dic):
+        shx = sorted(dic.keys())
+        dic_shx = {}
+        for sx in shx:
+            dic_shx[sx] = dic[sx]
+        after_var_value = self.fn(dic_shx)
+        self.write_to_handle(handle, after_var_value)
                         
-    def write_var(self,mac, handle, dic):                           #按行写入
+                        
+    def write_var(self, mac, handle, dic):                           #按行写入
         shx = sorted(dic.keys())
         dic_shx = {}
         for sx in shx:

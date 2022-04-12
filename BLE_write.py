@@ -1,7 +1,15 @@
 from urllib import response
 from bluepy import btle
-from bluepy.btle import Peripheral,UUID
+from bluepy.btle import Peripheral,UUID,DefaultDelegate
 from bluepy.btle import BTLEException
+
+
+class ReceiveDelegate(DefaultDelegate):
+    def __init__(self):
+        super().__init__()
+    
+    def handleNotification(self, cHandle, data):
+        print("handle: " + cHandle + "nofity" "----> ", data)
 
 
 class BLE_write():
@@ -10,6 +18,9 @@ class BLE_write():
         print(" Begin connect:")
         self._mac =  tar_mac
         self._conn = Peripheral(tar_mac)
+
+        self._conn.setDelegate(ReceiveDelegate())
+        self._conn.setMTU(500)
 
     def print_char(self):
         # Get service & characteristic
@@ -35,14 +46,21 @@ class BLE_write():
                         # print(uu+" read failed!!")
                         continue 
 
-                ##监听notification
-                # if Properties.find('NOTIFY'):
-                #     try:
-                #         charac.enable_notifications()    #notify
-                #     except BTLEException:
-                #         # print(uu + "notify failed!!")
-                #         continue
+                #监听notification
+                if Properties.find('NOTIFY'):
+                    try:
+                        self.wait_noti(charac.getHandle())
+                    except BTLEException:
+                        # print(uu + "notify failed!!")
+                        continue
 
+                if Properties.find('INDICATE'):
+                    try:
+                        self.wait_indications(charac.getHandle())
+                    except BTLEException:
+                        # print(uu + "notify failed!!")
+                        continue
+                    
 
                 # write
                 if Properties.find('WRITE'):
@@ -86,6 +104,46 @@ class BLE_write():
             print(60*'-')
         self._conn.disconnect()
         return han_list
+
+    def wait_noti(self, handle):
+
+        self._conn.writeCharacteristic(handle, b'\x01\x00')  #\x01\x00 for notify
+
+        while True:
+            if self._conn.waitForNotifications(3.0):
+            # handleNotification() was called
+                continue
+            
+                #print("Waiting")
+
+    def wait_indications(self, handle):
+
+        self._conn.writeCharacteristic(handle, b'\x02\x00')  #\x01\x00 for indications
+
+        while True:
+            if self._conn.waitForNotifications(3.0):
+            # handleNotification() was called
+                continue
+            
+                #print("Waiting")
+
+    def wri_with_hand(self, handle, list):
+        for v in list:
+            if self._conn == True:
+                try:
+                    respon = self._conn.writeCharacteristic(handle, v, withResponse=True)                ## python3.*  type(val)=byte
+                    print("write:" + str(v) +"to:" + str(handle) + "response: " + respon)
+                except BTLEException  as ex:
+                    print(ex)
+            else:
+                self.tar_con("tar_mac")
+
+
+
+
+        
+
+
 
 
 
