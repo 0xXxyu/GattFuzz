@@ -1,7 +1,12 @@
+from cgitb import enable
+import threading
 from urllib import response
+from xml.dom import InvalidModificationErr
 from bluepy import btle
 from bluepy.btle import Peripheral,UUID,DefaultDelegate
 from bluepy.btle import BTLEException
+import _thread
+import time
 
 
 class ReceiveDelegate(DefaultDelegate):
@@ -35,6 +40,7 @@ class BLE_write():
                 Properties = charac.propertiesToString()
                 print("    Characteristic: ", uu)
                 print("        Properties: ", Properties)
+                print("               handle:", charac.getHandle())
 
                 #read
                 if charac.supportsRead():
@@ -46,24 +52,27 @@ class BLE_write():
                         # print(uu+" read failed!!")
                         continue 
 
-                #监听notification
-                if Properties.find('NOTIFY'):
-                    try:
-                        self.wait_noti(charac.getHandle())
-                    except BTLEException:
-                        # print(uu + "notify failed!!")
-                        continue
+                # #监听notification
+                # if Properties.find('NOTIFY'):
+                #     try:
+                #         handl = charac.getHandle()
+                #         notify = threading.Thread(target=self.wait_noti, name=str(handl), args=(handl, ))
+                #         notify.start()                    
+                #     except BTLEException:
+                #         # print(uu + "notify failed!!")
+                #         continue
 
-                if Properties.find('INDICATE'):
-                    try:
-                        self.wait_indications(charac.getHandle())
-                    except BTLEException:
-                        # print(uu + "notify failed!!")
-                        continue
-                    
+                # if Properties.find('INDICATE'):
+                #     try:
+                #         handl = charac.getHandle()
+                #         indicate = threading.Thread(target=self.wait_indications, name=str(handl), args=(handl, ))
+                #         indicate.start()                   
+                #     except BTLEException:
+                #         # print(uu + "notify failed!!")
+                #         continu
 
                 # write
-                if Properties.find('WRITE'):
+                if 'WRITE' in Properties:
                     han = charac.getHandle()
                     wriList[svc.uuid]= uu                   #保存service uuid和characteristic uuid 
                     if han not in han_list:      
@@ -127,6 +136,7 @@ class BLE_write():
             
                 #print("Waiting")
 
+
     def wri_with_hand(self, handle, list):
         for v in list:
             if self._conn == True:
@@ -136,14 +146,4 @@ class BLE_write():
                 except BTLEException  as ex:
                     print(ex)
             else:
-                self.tar_con("tar_mac")
-
-
-
-
-        
-
-
-
-
-
+                self.tar_con('b4:60:ed:99:1f:34')

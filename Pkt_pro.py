@@ -42,7 +42,9 @@ class Pkt_pro():
 
             handl0 = att[2:3]+att[1:2]           # 小端转大端，<class 'bytes'>
             value0 = att[3:]
-            handl = handl0.hex()
+            hand = handl0.hex()
+            handl = int(hand, 16)
+
             value = value0.hex()
             
             if handl not in self.handWvalue.keys():

@@ -204,17 +204,21 @@ class Value_LCS():
         # return handle, after_var_value
         
 
-    def write_to_handle(self, mac, handle, after_var_value):
+    def write_to_handle(self,  handle, after_var_value):
         ble = BLE_write()
         self.path = './'+ str(handle) +'.csv'                               #把变异数据写入./fuzz_data.csv 
         
+        mac = 'b4:60:ed:99:1f:34'
         with open(self.path, 'w+', newline='') as f:
             csv_doc = csv.writer(f)
             for k in after_var_value:
                 self.wri_handle( mac, k, handle)                #mac, value, handle
-                print("write value：", k) 
-                k = k.decode(encoding="utf-8").replace('|', '')
-                csv_doc.writerow(k)
+                print("write value："+ str(k) + "to handle:"+str(handle)) 
+                #k = k.decode(encoding="utf-8").replace('|', '')
+                try:
+                    csv_doc.writerow(k)
+                except:
+                    continue
                           
 
     def fn(self, dict):
@@ -231,13 +235,22 @@ class Value_LCS():
         after_strs = self.var_string.bad_strs_list() + self.var_string.pyload_var(2) + self.var_string.pyload_var(4) + self.var_string.pyload_var(6) + self.var_string.pyload_var(8) + self.var_string.pyload_var(10) + self.var_string.pyload_var(12) + self.var_string.pyload_var(20)
 
         for hand in handles:
-            self.write_to_handle(mac, hand, after_strs)
+            self.write_to_handle(hand, after_strs)
 
     def wri_handle(self, mac, val, hand):
         conn = Peripheral(mac)
+        if type(val) != bytes:
+            val = val.encode()
         try:
             conn.writeCharacteristic(hand, val, withResponse=None)                ## python3.*  type(val)=byte
-            print("write:" + str(val) +"to:" + str(hand) + "response: ")
+            print("write:" + str(val) +"      to:" + str(hand) )
         except BTLEException  as ex:
             print(ex)
+            
         
+# val = b'B51B6388'
+# mac = '6c:ce:44:f5:8f:53'
+# hand = 16
+
+# v = Value_LCS()
+# v.wri_handle(mac, val, hand)
