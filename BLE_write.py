@@ -8,6 +8,11 @@ from bluepy.btle import BTLEException
 import _thread
 import time
 
+'''
+connect to target device
+
+
+'''
 
 class ReceiveDelegate(DefaultDelegate):
     def __init__(self):
@@ -52,7 +57,7 @@ class BLE_write():
                         # print(uu+" read failed!!")
                         continue 
 
-                # #监听notification
+                # listen notification
                 # if Properties.find('NOTIFY'):
                 #     try:
                 #         handl = charac.getHandle()

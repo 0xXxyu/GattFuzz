@@ -1,6 +1,6 @@
 import binascii
 from re import sub
-from scapy.all import *
+# from scapy.all import *
 
 '''
 提取pcap中request_command handle和value到字典
@@ -18,7 +18,7 @@ class Pkt_pro():
     
 
     def pr_pcap(self):
-        pkts = rdpcap(self.pcap_path)
+        pkts =  (self.pcap_path)
         for pkt in pkts: 
             try:                               #需要添加mac判断
                 raw = pkt.raw_packet_cache                  # <class 'bytes'>

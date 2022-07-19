@@ -54,6 +54,22 @@ class Var_string():
             ";CMD=$'reboot';$CMD",
             ';CMD=$"reboot";$CMD',
             ";id",
+            "id",
+            ",id",
+            ";id",
+            ";id;",
+            "'id'",
+            ""id"",
+            "''id",
+            "''id''",
+            "''id''&",
+            "*id",
+            "*id*",
+            "**id**",
+            "(id)",
+            "`id`",
+            "`id`&",
+            "`id` &",
             ]
         bad_str_list = []
         for st in bad_strs:
