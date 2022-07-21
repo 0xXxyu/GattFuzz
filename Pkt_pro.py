@@ -23,7 +23,7 @@ class Pkt_pro():
             try:                                            # 需要添加mac判断
                 raw = pkt.raw_packet_cache                  # <class 'bytes'>
                 
-                print("raw:", raw.hex())
+                #print("raw:", raw.hex())
                 att = raw[27:len(raw)-3]   
                 self.sub_pak(att)
             except:

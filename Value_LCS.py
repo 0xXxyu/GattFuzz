@@ -116,7 +116,9 @@ class Value_LCS():
         # print("返回规则：", str)
         # print(var_data_dic)
         # print(self._simple_list)
-        
+
+        # print("value_lcs:", handle)
+        # print("var_data_dic:", var_data_dic)
         self.write_value(handle, var_data_dic)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
@@ -174,7 +176,7 @@ class Value_LCS():
                 #print(str(handle) + "只有一个输入" + valu )
                 self.find_lcseque(handle, valu[0], valu[0])                        # 使用变异后的{handle：[v1,v2]}填充字典
             elif len(valu) == 0:                                                   # 处理pcap包中没有的handle fuzz
-                print("fuzz pcap中没有的handle")                                    
+                # print("fuzz pcap中没有的handle")                                    
                 self.var_no_pcap(handle)
             else:
                 for i in range(len(valu)):
@@ -182,7 +184,8 @@ class Value_LCS():
                         if len(valu[i]) == len(valu[j]):        # 包括一次重放
                             print('-'*60)
                             self.find_lcseque(handle, valu[i],valu[j])   
-
+        
+        print('#'*30+"变异完成"+'#'*30)
         return self.Muta_dic                                                        # 返回变异后字典          
 
 
@@ -195,16 +198,19 @@ class Value_LCS():
         after_var_value = self.fn(dic_shx)
         
 
-        # print("handle:", handle)
-        # print("after_var_value:", type(after_var_value))
+        # print("muta handle:", handle)
+        # print("muta after_var_value:", type(after_var_value))
         if not bool(self.Muta_dic):
             self.Muta_dic[handle] = after_var_value
         # elif self.Muta_dic[handle] == []:
         #     print("handle value:", self.Muta_dic[handle])
         #     self.Muta_dic[handle] = after_var_value
+        elif handle not in self.Muta_dic.keys():
+            #print(self.Muta_dic.keys()) 
+            self.Muta_dic[handle] = after_var_value      #   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
         else:
-            print(self.Muta_dic.keys())
-            self.Muta_dic[handle] = after_var_value
+            self.Muta_dic[handle] = self.Muta_dic[handle] + after_var_value
+        print("mula_dic:")
 
         # return handle, after_var_value
         # self.write_to_handle(handle, after_var_value)
@@ -246,12 +252,10 @@ class Value_LCS():
         return reduce(myfunc, lists)
 
 
-    def var_no_pcap(self, handles):
+    def var_no_pcap(self, handle):
         
         after_strs = self.var_string.bad_strs_list() + self.var_string.pyload_var(2) + self.var_string.pyload_var(4) + self.var_string.pyload_var(6) + self.var_string.pyload_var(8) + self.var_string.pyload_var(10) + self.var_string.pyload_var(12) + self.var_string.pyload_var(20)
-
-        for hand in handles:
-            self.Muta_dic[hand] = after_strs
+        self.Muta_dic[handle] = after_strs
 
     # def wri_handle(self, mac, val, hand):
     #     conn = Peripheral(mac)

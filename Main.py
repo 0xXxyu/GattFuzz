@@ -19,7 +19,8 @@ val = Value_LCS()
 多次连接才能连上
 '''
 def Pcap_fuzz(pcap_path,tar_mac):
-
+    
+    latest_dic={}
     #提取数据包 static          
     print("#"*30+"开始处理pcap文件"+'#'*30)
     pkt = Pkt_pro(pcap_path)
@@ -28,9 +29,9 @@ def Pcap_fuzz(pcap_path,tar_mac):
     han_val_dic = {}
 
     pcap_handles, han_val_dic = pkt.pr_pcap()          # 返回handle列表和{handle：[value]}字典
-    print("#"*30+"处理pcap文件结束，处理结果输出"+'#'*30)
+    print("#"*30+"处理pcap文件结束"+'#'*30)
     print("pcap handles:", pcap_handles)                # pcap中的handles
-    print("all_value:", han_val_dic)
+    #print("all_value:", han_val_dic)
                                       
 
     # connect device and print chars
@@ -42,12 +43,16 @@ def Pcap_fuzz(pcap_path,tar_mac):
 
     # 存在部分handle不通信的情况，pcap中没有数据，补充这部分
     for handle in bulepy_handles:
+        print("handle:", handle)
         if handle not in pcap_handles:
-            han_val_dic[handle] = []
+            latest_dic[handle] = []
+        else:
+            latest_dic[handle] = han_val_dic[handle]
+    print("latest pcap dic:", latest_dic)
     
     print("#"*30+ "fuzz 输入"+ '#'*30)
-    after_Muta_dic = val.pro_dict(han_val_dic)              # 进行规则标记、变异，返回变异后字典
-    print(after_Muta_dic)
+    after_Muta_dic = val.pro_dict( latest_dic)              # 进行规则标记、变异，返回变异后字典
+    # print(after_Muta_dic)
     ble.tar_con(tar_mac)
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
 
@@ -68,21 +73,21 @@ def no_pcap_fuzz(tar_mac):
 
 #pcap_path = 'E:\IoT_Test\德施曼智能门锁\\5.pcapng'
 #pcap_path = 'E:\IoT_Test\小米手环\\4_mingwen3.pcapng'
-# pcap_path = 'sum.pcapng'
-# tar_mac = 'ec:a9:2a:78:18:48'
-# Pcap_fuzz(pcap_path, tar_mac)
+pcap_path = 'sum.pcapng'
+tar_mac = 'ec:a9:2a:78:18:48'
+Pcap_fuzz(pcap_path, tar_mac)
 
-def main():
-    args = parser.parse_args()
-    pcap_path = args.file
-    target_mac = args.mac
-    try:
-        if not pcap_path:
-            no_pcap_fuzz(target_mac)
-        else:
-            Pcap_fuzz(pcap_path, target_mac)
-    except Exception as e:
-        print('[-] fuzz error : {}'.format(e))
+# def main():
+#     args = parser.parse_args()
+#     pcap_path = args.file
+#     target_mac = args.mac
+#     try:
+#         if not pcap_path:
+#             no_pcap_fuzz(target_mac)
+#         else:
+#             Pcap_fuzz(pcap_path, target_mac)
+#     except Exception as e:
+#         print('[-] fuzz error : {}'.format(e))
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
