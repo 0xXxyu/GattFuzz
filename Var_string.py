@@ -2,7 +2,7 @@ import csv
 from itertools import count
 from pickletools import pylist
 import random as ran
-import pandas as pd
+#import pandas as pd
 
 class Var_string():
 
