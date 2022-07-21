@@ -20,24 +20,23 @@ class Pkt_pro():
     def pr_pcap(self):
         pkts =  rdpcap(self.pcap_path)
         for pkt in pkts: 
-            try:                               #需要添加mac判断
+            try:                                            # 需要添加mac判断
                 raw = pkt.raw_packet_cache                  # <class 'bytes'>
-                #return raw 
+                
+                print("raw:", raw.hex())
                 att = raw[27:len(raw)-3]   
                 self.sub_pak(att)
             except:
                 continue  
-
         # print(self.wri_handle)
-        #print(self.handWvalue)
+        # print(self.handWvalue)
         return self.wri_handle, self.handWvalue
 
     def sub_pak(self, att):
         
         opcode = att[:1]
-        #print(opcode.hex())
-        #print(type(opcode))
-        
+
+        # print("opcode:", opcode.hex())
         if opcode.hex() == '52':     #write command 0x52
 
             handl0 = att[2:3]+att[1:2]           # 小端转大端，<class 'bytes'>

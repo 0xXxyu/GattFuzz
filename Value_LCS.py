@@ -3,11 +3,7 @@ import time
 from distutils.file_util import write_file
 
 #import pandas as pd
-from BLE_write import BLE_control
 from Var_string import Var_string
-
-from bluepy.btle import Peripheral,UUID
-from bluepy.btle import BTLEException
 
 '''
 接收pcap字典，value列表逐个比较，给出变异字段
