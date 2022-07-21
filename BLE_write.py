@@ -3,7 +3,7 @@ import threading
 from urllib import response
 from xml.dom import InvalidModificationErr
 from bluepy import btle
-from bluepy.btle import Peripheral,UUID,DefaultDelegate
+from bluepy.btle import Peripheral,UUID,DefaultDelegate,Scanner
 from bluepy.btle import BTLEException
 import _thread
 import time
@@ -22,15 +22,23 @@ class ReceiveDelegate(DefaultDelegate):
         print("handle: " + cHandle + "nofity" "----> ", data)
 
 
+
 class BLE_write():
 
     def tar_con(self, tar_mac):
-        print(" Begin connect:")
-        self._mac =  tar_mac
-        self._conn = Peripheral(tar_mac)
-
-        self._conn.setDelegate(ReceiveDelegate())
-        self._conn.setMTU(500)
+        print(" Begin scan:")
+        scanner = Scanner()
+        devices = scanner.scan(timeout=10)
+        for dev in devices:
+            if dev.addr==tar_mac:
+                print("find target device:")
+                print(dev)
+                print("%-30s %-20s" % (dev.getValueText(9), dev.addr)) 
+                self._mac = tar_mac 
+                self._conn = Peripheral(dev.addr, dev.addrType )
+                self._conn.setDelegate(ReceiveDelegate())
+                self._conn.setMTU(500)
+          
 
     def print_char(self):
         # Get service & characteristic

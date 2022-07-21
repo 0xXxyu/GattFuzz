@@ -8,26 +8,23 @@ def Pcap_var(pcap_path,tar_mac):
 
     #提取数据包 static            
     pkt = Pkt_pro(pcap_path)
-    all_handles = []
+   
+
+    # connect device and print chars
     ble = BLE_write()
     ble.tar_con(tar_mac)
     handles = ble.print_char()
-    print(handles)
+    print("handles:", handles)
 
-    # 随机变异
-    n = 0
-    while n<10:
-        val.var_no_pcap(tar_mac, handles)
-        n=+1
-
+    all_handles = []
     all_values = {}
     all_handle, all_values = pkt.pr_pcap()          # 返回handle列表和{handle：[value]}字典
-    print(all_values)
+    print("all_value:", all_values)
 
-
-    ble = BLE_write()
-    ble.tar_con(tar_mac)            
-    handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
+    val.pro_dict(all_values)
+    # ble = BLE_write()
+    # ble.tar_con(tar_mac)            
+    # handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
 
 # #横向比较——变异——输入
 # n = 0
@@ -50,9 +47,6 @@ def Just_write(tar_mac):
         val.var_no_pcap(tar_mac, handles)
         n=+1
 
-
-
-
-pcap_path = './s2.pcap'
+pcap_path = '/home/xiaoyu/data/BleFuzz/BLEFuzz/open_lock_2.pcap'
 tar_mac = 'ec:a9:2a:78:18:48'
 Pcap_var(pcap_path, tar_mac)

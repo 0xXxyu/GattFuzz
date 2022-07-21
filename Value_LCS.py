@@ -121,7 +121,8 @@ class Value_LCS():
         # print(after_var_data)
         # print(self._simple_list)
         
-        self.write_value(handle, after_var_data)              
+        return handle, after_var_data
+        #self.write_value(handle, after_var_data)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
         m = [[0 for x in range(len2 + 1)] for y in range(len1 + 1)]
@@ -185,72 +186,65 @@ class Value_LCS():
                             self.find_lcseque(handle, valu[i],valu[j])             
 
 
-    def write_value(self, handle, dic):
-        shx = sorted(dic.keys())
-        dic_shx = {}
-        for sx in shx:
-            dic_shx[sx] = dic[sx]
-        after_var_value = self.fn(dic_shx)
-        self.write_to_handle(handle, after_var_value)
+
+    # def write_value(self, handle, dic):
+    #     shx = sorted(dic.keys())
+    #     dic_shx = {}
+    #     for sx in shx:
+    #         dic_shx[sx] = dic[sx]
+    #     after_var_value = self.fn(dic_shx)
+    #     self.write_to_handle(handle, after_var_value)
                         
                         
-    def write_var(self, mac, handle, dic):                           #按行写入
-        shx = sorted(dic.keys())
-        dic_shx = {}
-        for sx in shx:
-            dic_shx[sx] = dic[sx]
-        after_var_value = self.fn(dic_shx)
-        self.write_to_handle(mac, handle, after_var_value)
-        # return handle, after_var_value
+    # def write_var(self, mac, handle, dic):                           #按行写入
+    #     shx = sorted(dic.keys())
+    #     dic_shx = {}
+    #     for sx in shx:
+    #         dic_shx[sx] = dic[sx]
+    #     after_var_value = self.fn(dic_shx)
+    #     self.write_to_handle(mac, handle, after_var_value)
+    #     # return handle, after_var_value
         
 
-    def write_to_handle(self,  handle, after_var_value):
-        ble = BLE_write()
-        self.path = './'+ str(handle) +'.csv'                               #把变异数据写入./fuzz_data.csv 
+    # def write_to_handle(self,  handle, after_var_value):
+    #     ble = BLE_write()
+    #     self.path = './'+ str(handle) +'.csv'                               #把变异数据写入./fuzz_data.csv 
         
-        mac = 'b4:60:ed:99:1f:34'
-        with open(self.path, 'w+', newline='') as f:
-            csv_doc = csv.writer(f)
-            for k in after_var_value:
-                self.wri_handle( mac, k, handle)                #mac, value, handle
-                print("write value："+ str(k) + "to handle:"+str(handle)) 
-                #k = k.decode(encoding="utf-8").replace('|', '')
-                try:
-                    csv_doc.writerow(k)
-                except:
-                    continue
+    #     mac = 'b4:60:ed:99:1f:34'
+    #     with open(self.path, 'w+', newline='') as f:
+    #         csv_doc = csv.writer(f)
+    #         for k in after_var_value:
+    #             self.wri_handle( mac, k, handle)                #mac, value, handle
+    #             print("write value："+ str(k) + "to handle:"+str(handle)) 
+    #             #k = k.decode(encoding="utf-8").replace('|', '')
+    #             try:
+    #                 csv_doc.writerow(k)
+    #             except:
+    #                 continue
                           
 
-    def fn(self, dict):
-        lists = list(dict.values())    
-        from functools import reduce
+    # def fn(self, dict):
+    #     lists = list(dict.values())    
+    #     from functools import reduce
             
-        def myfunc(list1, list2):
-            return [str(i)+str(j) for i in list1 for j in list2]
-        return reduce(myfunc, lists)
+    #     def myfunc(list1, list2):
+    #         return [str(i)+str(j) for i in list1 for j in list2]
+    #     return reduce(myfunc, lists)
 
 
-    def var_no_pcap(self,  mac, handles):
+    # def var_no_pcap(self,  mac, handles):
         
-        after_strs = self.var_string.bad_strs_list() + self.var_string.pyload_var(2) + self.var_string.pyload_var(4) + self.var_string.pyload_var(6) + self.var_string.pyload_var(8) + self.var_string.pyload_var(10) + self.var_string.pyload_var(12) + self.var_string.pyload_var(20)
+    #     after_strs = self.var_string.bad_strs_list() + self.var_string.pyload_var(2) + self.var_string.pyload_var(4) + self.var_string.pyload_var(6) + self.var_string.pyload_var(8) + self.var_string.pyload_var(10) + self.var_string.pyload_var(12) + self.var_string.pyload_var(20)
 
-        for hand in handles:
-            self.write_to_handle(hand, after_strs)
+    #     for hand in handles:
+    #         self.write_to_handle(hand, after_strs)
 
-    def wri_handle(self, mac, val, hand):
-        conn = Peripheral(mac)
-        if type(val) != bytes:
-            val = val.encode()
-        try:
-            conn.writeCharacteristic(hand, val, withResponse=None)                ## python3.*  type(val)=byte
-            print("write:" + str(val) +"      to:" + str(hand) )
-        except BTLEException  as ex:
-            print(ex)
-            
-        
-# val = b'B51B6388'
-# mac = '6c:ce:44:f5:8f:53'
-# hand = 16
-
-# v = Value_LCS()
-# v.wri_handle(mac, val, hand)
+    # def wri_handle(self, mac, val, hand):
+    #     conn = Peripheral(mac)
+    #     if type(val) != bytes:
+    #         val = val.encode()
+    #     try:
+    #         conn.writeCharacteristic(hand, val, withResponse=None)                ## python3.*  type(val)=byte
+    #         print("write:" + str(val) +"      to:" + str(hand) )
+    #     except BTLEException  as ex:
+    #         print(ex)

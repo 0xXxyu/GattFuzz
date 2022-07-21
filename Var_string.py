@@ -59,7 +59,6 @@ class Var_string():
             ";id",
             ";id;",
             "'id'",
-            ""id"",
             "''id",
             "''id''",
             "''id''&",
