@@ -2,6 +2,11 @@ from Value_LCS import Value_LCS
 from Pkt_pro import Pkt_pro
 from BLE_write import BLE_control
 from scapy.all import *
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-f', '--file', help='input pcap file',required=False)
+parser.add_argument('-m', '--mac', help='mac address of target', required=True)
 
 val = Value_LCS()
 
@@ -63,7 +68,21 @@ def no_pcap_fuzz(tar_mac):
 
 #pcap_path = 'E:\IoT_Test\德施曼智能门锁\\5.pcapng'
 #pcap_path = 'E:\IoT_Test\小米手环\\4_mingwen3.pcapng'
-pcap_path = 'sum.pcapng'
-tar_mac = 'ec:a9:2a:78:18:48'
-Pcap_fuzz(pcap_path, tar_mac)
+# pcap_path = 'sum.pcapng'
+# tar_mac = 'ec:a9:2a:78:18:48'
+# Pcap_fuzz(pcap_path, tar_mac)
 
+def main():
+    args = parser.parse_args()
+    pcap_path = args.file
+    target_mac = args.mac
+    try:
+        if not pcap_path:
+            no_pcap_fuzz(target_mac)
+        else:
+            Pcap_fuzz(pcap_path, target_mac)
+    except Exception as e:
+        print('[-] fuzz error : {}'.format(e))
+
+if __name__ == '__main__':
+    main()
