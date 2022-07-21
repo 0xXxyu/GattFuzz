@@ -3,6 +3,11 @@ from Pkt_pro import Pkt_pro
 from BLE_write import BLE_control
 from scapy.all import *
 import argparse
+import logging
+logging.basicConfig(        # 针对 basicConfig 进行配置(basicConfig 其实就是对 logging 模块进行动态的调整，之后可以直接使用)
+    level=logging.INFO,     # INFO 等级以下的日志不会被记录
+    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',    # 日志输出格式
+)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--file', help='input pcap file',required=False)
@@ -22,37 +27,37 @@ def Pcap_fuzz(pcap_path,tar_mac):
     
     latest_dic={}
     #提取数据包 static          
-    print("#"*30+"开始处理pcap文件"+'#'*30)
+    logging.info("#"*30+"开始处理pcap文件"+'#'*30)
     pkt = Pkt_pro(pcap_path)
 
     pcap_handles = []
     han_val_dic = {}
 
     pcap_handles, han_val_dic = pkt.pr_pcap()          # 返回handle列表和{handle：[value]}字典
-    print("#"*30+"处理pcap文件结束"+'#'*30)
+    logging.info("#"*30+"处理pcap文件结束"+'#'*30)
     print("pcap handles:", pcap_handles)                # pcap中的handles
-    #print("all_value:", han_val_dic)
+    #logging.info("all_value:", han_val_dic)
                                       
 
-    # connect device and print chars
-    print("#"*30+ "设备扫描"+ '#'*30)
+    # connect device and logging.info chars
+    logging.info("#"*30+ "设备扫描"+ '#'*30)
     ble = BLE_control()                 
     ble.tar_con(tar_mac)
-    bulepy_handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
-    print("bluepy handles:", bulepy_handles)
+    bulepy_handles = ble.logging.info_char()                      # 建立连接打印read，并打开所有notification
+    logging.info("bluepy handles:", bulepy_handles)
 
     # 存在部分handle不通信的情况，pcap中没有数据，补充这部分
     for handle in bulepy_handles:
-        print("handle:", handle)
+        logging.info("handle:", handle)
         if handle not in pcap_handles:
             latest_dic[handle] = []
         else:
             latest_dic[handle] = han_val_dic[handle]
-    print("latest pcap dic:", latest_dic)
+    logging.info("latest pcap dic:", latest_dic)
     
-    print("#"*30+ "fuzz 输入"+ '#'*30)
+    logging.info("#"*30+ "fuzz 输入"+ '#'*30)
     after_Muta_dic = val.pro_dict( latest_dic)              # 进行规则标记、变异，返回变异后字典
-    # print(after_Muta_dic)
+    # logging.info(after_Muta_dic)
     ble.tar_con(tar_mac)
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
 
@@ -62,8 +67,8 @@ def no_pcap_fuzz(tar_mac):
     # just write
     ble = BLE_control()
     ble.tar_con(tar_mac)
-    handles = ble.print_char()
-    print(handles)
+    handles = ble.logging.info_char()
+    logging.info(handles)
 
     # 随机变异十次
     n = 0
@@ -75,6 +80,7 @@ def no_pcap_fuzz(tar_mac):
 #pcap_path = 'E:\IoT_Test\小米手环\\4_mingwen3.pcapng'
 pcap_path = 'sum.pcapng'
 tar_mac = 'ec:a9:2a:78:18:48'
+logging.warning('start pcap fuzz')
 Pcap_fuzz(pcap_path, tar_mac)
 
 # def main():
