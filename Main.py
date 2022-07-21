@@ -1,6 +1,11 @@
 from Value_LCS import Value_LCS
 from Pkt_pro import Pkt_pro
 from BLE_write import BLE_control
+import argparse
+
+parse = argparse.ArgumentParser()
+parse.add_argument('-f', '--file', help="input pcap file", required=False)
+parse.add_argument('-m', '--mac', help="mac address of target", required=True)
 
 val = Value_LCS()
 
@@ -59,7 +64,19 @@ def no_pcap_fuzz(tar_mac):
         val.var_no_pcap(tar_mac, handles)
         n=+1
 
-pcap_path = 'open_lock_2.pcapng'
-#pcap_path = 'test.pcapng'
-tar_mac = 'ec:a9:2a:78:18:48'
-Pcap_fuzz(pcap_path, tar_mac)
+# pcap_path = 'open_lock_2.pcapng'
+# #pcap_path = 'test.pcapng'
+# tar_mac = 'ec:a9:2a:78:18:48'
+# Pcap_fuzz(pcap_path, tar_mac)
+
+def main():
+    args = parse.parse_args()
+    pcap_path = args.file
+    target_mac = args.mac
+    if not args.file:
+        no_pcap_fuzz(args.mac)
+    else:
+        Pcap_fuzz(pcap_path, target_mac)
+
+if __name__ == '__main__':
+    main()
