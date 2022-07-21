@@ -1,5 +1,3 @@
-from asyncio.windows_events import NULL
-from asyncore import write
 import csv
 import time
 from distutils.file_util import write_file
@@ -36,7 +34,7 @@ class Value_LCS():
         from builtins import str
         timest = str(int(time.time()))
 
-        after_var_data = {}
+        var_data_dic = {}
         len1 = int(len(s1)/2)
         len2 = int(len(s2)/2)
 
@@ -66,13 +64,13 @@ class Value_LCS():
                 simple_var_list = self._simple_list + self.var_string.string_var(1) + self.var_string.bad_strs_list() + self.var_string.pyload_var(2)   # 2字节数据同时调用“坏”字符串进行测试
                 
                 #self.write_var(simple_var_list)
-                after_var_data[0] = simple_var_list
+                var_data_dic[0] = simple_var_list
 
                 break    
                 # return self._simple_list                                   #2字节数据
             elif s01 == s02:
                 
-                after_var_data[0] = self.var_string.string_var(len(s01)*2) + self.var_string.pyload_var(len(s01)*2) + self.var_string.bad_strs_list()
+                var_data_dic[0] = self.var_string.string_var(len(s01)*2) + self.var_string.pyload_var(len(s01)*2) + self.var_string.bad_strs_list()
                 
                 break
  
@@ -81,25 +79,25 @@ class Value_LCS():
 
                 #self.write_var([s01[i]])
 
-                after_var_data[i]=s01[i].encode()   
+                var_data_dic[i]=s01[i].encode()   
                 #print("标记static，pyload_cont置0")
                 if ly_count>0:
                     #print("标记static后pyload_cont:", ly_count)
                     pyload_list = self.var_string.pyload_var(ly_count) + self.var_string.string_var(ly_count)       #随机字符串变异、坏字符串变异
 
-                    after_var_data[i-1] = pyload_list
+                    var_data_dic[i-1] = pyload_list
                 ly_count = 0
             elif hex0 == 1:
                 str = str[:i*2] + self._coun + str[(i+1)*2:]                   #标记计数位,一般两个字节
                 count_list = self.var_string.count_var(s01[i])
                 #self.write_var(count_list)
-                after_var_data[i] = count_list
+                var_data_dic[i] = count_list
                 # print("标记count，pyload_cont置0")
                 if ly_count>0:
                     #print("标记count后pyload_cont:", ly_count)
                     pyload_list = self.var_string.pyload_var(ly_count) + self.var_string.string_var(ly_count)
 
-                    after_var_data[i-1] = pyload_list
+                    var_data_dic[i-1] = pyload_list
                 ly_count = 0
             else:
                 if i == 0:
@@ -113,17 +111,17 @@ class Value_LCS():
        
         if ly_count != 0:
             pyload_list = self.var_string.pyload_var(ly_count) + self.var_string.string_var(ly_count)
-            after_var_data[i-1] = pyload_list
+            var_data_dic[i-1] = pyload_list
             # print("py_load_count:", ly_count)
 
 
         # print("原字符串：", s1) 
         # print("比较字符：", s2)            
         # print("返回规则：", str)
-        # print(after_var_data)
+        # print(var_data_dic)
         # print(self._simple_list)
         
-        self.write_value(handle, after_var_data)              
+        self.write_value(handle, var_data_dic)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
         m = [[0 for x in range(len2 + 1)] for y in range(len1 + 1)]
@@ -177,7 +175,7 @@ class Value_LCS():
             valu = dic[key]
 
             if len(valu) == 1:
-                print(handle + "只有一个输入" + valu )
+                #print(str(handle) + "只有一个输入" + valu )
                 self.find_lcseque(handle, valu[0], valu[0])                        # 使用变异后的{handle：[v1,v2]}填充字典
             elif len(valu) == 0:                                                   # 处理pcap包中没有的handle fuzz
                 print("fuzz pcap中没有的handle")                                    
@@ -199,11 +197,18 @@ class Value_LCS():
         for sx in shx:
             dic_shx[sx] = dic[sx]
         after_var_value = self.fn(dic_shx)
+        
 
-        if self.Muta_dic[handle] == NULL:
+        # print("handle:", handle)
+        # print("after_var_value:", type(after_var_value))
+        if not bool(self.Muta_dic):
             self.Muta_dic[handle] = after_var_value
+        # elif self.Muta_dic[handle] == []:
+        #     print("handle value:", self.Muta_dic[handle])
+        #     self.Muta_dic[handle] = after_var_value
         else:
-            self.Muta_dic[handle] = self.Muta_dic[handle] + after_var_value
+            print(self.Muta_dic.keys())
+            self.Muta_dic[handle] = after_var_value
 
         # return handle, after_var_value
         # self.write_to_handle(handle, after_var_value)
