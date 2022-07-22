@@ -1,7 +1,8 @@
 import binascii
 from re import sub
 from scapy.all import *
-
+from log import Logger
+logger = Logger(loggername='Pkt_pro').get_logger()
 '''
 提取pcap中request_command handle和value到字典
 

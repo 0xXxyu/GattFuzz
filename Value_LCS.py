@@ -5,6 +5,9 @@ from distutils.file_util import write_file
 #import pandas as pd
 from Var_string import Var_string
 
+from log import Logger
+logger = Logger(loggername='Value_LCS').get_logger()
+
 '''
 接收pcap字典，value列表逐个比较，给出变异字段
 '''
