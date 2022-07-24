@@ -1,6 +1,6 @@
 import csv
 import time
-from distutils.file_util import write_file
+# from distutils.file_util import write_file
 
 #import pandas as pd
 from Var_string import Var_string
@@ -30,10 +30,13 @@ class Value_LCS():
     每个handle生成一个变异数据集合
     '''
     def find_lcseque(self, handle, s1, s2):
-        from builtins import str
-        timest = str(int(time.time()))
+        # from builtins import str
+        # timest = str(int(time.time()))
 
         var_data_dic = {}
+        # TODO fix here
+        # 双位分割对于奇数长度字符串会导致末尾被舍弃
+        # 对于 12345， int(5/2) = 2
         len1 = int(len(s1)/2)
         len2 = int(len(s2)/2)
 
@@ -50,7 +53,7 @@ class Value_LCS():
         ly_count = 0                        # pyload计数位
         #标记static
         for i in range(len(s01)):
-            #print("处理位：", s01[i])
+            # logger.info("处理位：{}".format(s01[i]))
             hex0 = abs(int(s01[i],16)-int(s02[i],16))
 
             if len(s01) == 1:
@@ -58,7 +61,7 @@ class Value_LCS():
                     self._simple_list.append(s01[0])        #固定输入字节,比如0xfe05，mac
                     if s02[0] not in self._simple_list:
                         self._simple_list.append(s02[0])
-                str = str[:i*2] + self._simple + str[(i+1)*2:]  
+                str = str[:i*2] + self._simple + str[(i+1)*2:]
 
                 simple_var_list = self._simple_list + self.var_string.string_var(1) + self.var_string.bad_strs_list() + self.var_string.pyload_var(2)   # 2字节数据同时调用“坏”字符串进行测试
                 
@@ -78,7 +81,7 @@ class Value_LCS():
 
                 #self.write_var([s01[i]])
 
-                var_data_dic[i]=s01[i].encode()   
+                var_data_dic[i]=[s01[i].encode()]
                 #print("标记static，pyload_cont置0")
                 if ly_count>0:
                     #print("标记static后pyload_cont:", ly_count)
@@ -213,7 +216,7 @@ class Value_LCS():
             self.Muta_dic[handle] = after_var_value      #   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
         else:
             self.Muta_dic[handle] = self.Muta_dic[handle] + after_var_value
-        print("mula_dic:")
+        logger.info("mula_dic:")
 
         # return handle, after_var_value
         # self.write_to_handle(handle, after_var_value)
