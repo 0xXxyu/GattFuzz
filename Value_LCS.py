@@ -24,6 +24,112 @@ class Value_LCS():
         self.Muta_dic = {}
 
 
+    def get_lcs_rule(self, str1, str2):
+        """
+        比较两个输入字符串，得到 lcs_rule
+        lcs_rule 由指定标记组成 -- _static, _coun, _simple, _pyload
+        : return :lcs_rule
+        : type : list
+        : eg: ['12', '++', '++', '##', '++', '++', '++', '++', '++', '++']
+        """
+        if len(str1) != len(str2):
+            logger.warning('输入字符串长度不等: len(str1):{}\tlen(str2):{}'.format(len(str1), len(str2)))
+        
+        str_len = len(str1)
+
+        # if (str_len % 2) != 0:
+        #     str1 = '0' + str1
+        #     str2 = '0' + str2
+        #     str_len += 1
+
+        str_list_01 = []
+        str_list_02 = []
+
+        for i in range(int(str_len/2)):
+            str_list_01.append(str1[i*2] + str1[i*2 + 1])
+            str_list_02.append(str2[i*2] + str2[i*2 + 1])
+
+        # 字节长度等于 1， 认为属于 _simple
+        if str_len == 1:
+            if str_list_01[0] not in self._simple_list:
+                self._simple_list.append(str_list_01[0])
+            if str_list_02[0] not in self._simple_list:
+                self._simple_list.append(str_list_02[0])
+            lcs_rule = [self._simple]
+            return lcs_rule
+        
+        # 字节长度不等于 1 且相同，认为整体为 _payload
+        elif str1 == str2:
+            lcs_rule_t = ['++'] * int(str_len/2)
+            return lcs_rule
+        
+        # 初始均为 --
+        # 以下开始标记规则
+        lcs_rule = ['--'] * int(str_len/2)
+        for i in range(int(str_len/2)):
+            hex_diff = abs(int(str_list_01[i], 16) - int(str_list_02[i], 16))
+
+            # 当前字节相同，认为固定不变
+            if str_list_01[i] == str_list_02[i]:
+                lcs_rule[i] = str_list_01[i]
+            # 差值为 1，认为是 _coun
+            elif hex_diff == 1:
+                lcs_rule[i] = self._coun
+            # 否则，认为是 _pyload
+            else:
+                lcs_rule[i] = self._pyload
+
+        return lcs_rule
+    
+
+    def find_lcseque_with_lcs_rule(self, lcs_rule):
+        """
+        根据 lcs_rule 进行变异
+        """
+        var_data_dic = {}
+        count = 0
+        payload_count = 0
+        for lcs_tag in lcs_rule:
+            lcs_tah_index = lcs_rule.index(lcs_tag)
+            if lcs_tag == self._static:
+                pass
+            elif lcs_tag == self._coun:
+                # TODO fix here
+                # 生成 count 变异数据
+                count_var_data_list = self.var_string.count_var('ff')
+                # 生成 payload 编译数据
+                if payload_count > 0:
+                    pyload_var_data_list = self.var_string.pyload_var(payload_count) + self.var_string.string_var(payload_count)       #随机字符串变异、坏字符串变异
+                    payload_count = 0
+                    var_data_dic[count] = pyload_var_data_list
+                    count += 1
+                
+                var_data_dic[count] = count_var_data_list
+                count += 1
+            elif lcs_tag == self._simple:
+                pass
+            elif lcs_tag == self._pyload:
+                payload_count += 2
+            else:
+                var_data_dic[count] = [lcs_tag.encode()]
+                count += 1
+        
+        # 以 payload 结尾
+        if payload_count != 0:
+            pyload_var_data_list = self.var_string.pyload_var(payload_count) + self.var_string.string_var(payload_count)       #随机字符串变异、坏字符串变异
+            payload_count = 0
+            var_data_dic[count] = pyload_var_data_list
+            count += 1
+
+        # print('===============')
+        # for i in var_data_dic:
+        #     print('--------------------')
+        #     var_data = var_data_dic[i]
+        #     logger.info(len(var_data))
+        #     logger.info(var_data)
+        return var_data_dic
+
+
     '''
     对每个value列表中值两两进行横向比较，给出变异数据
 
@@ -34,9 +140,6 @@ class Value_LCS():
         # timest = str(int(time.time()))
 
         var_data_dic = {}
-        # TODO fix here
-        # 双位分割对于奇数长度字符串会导致末尾被舍弃
-        # 对于 12345， int(5/2) = 2
         len1 = int(len(s1)/2)
         len2 = int(len(s2)/2)
 
@@ -124,7 +227,13 @@ class Value_LCS():
         # print(self._simple_list)
 
         # print("value_lcs:", handle)
-        # print("var_data_dic:", var_data_dic)
+        # logger.info(str)
+        # print('===============')
+        # for i in var_data_dic:
+        #     print('--------------------')
+        #     var_data = var_data_dic[i]
+        #     logger.info(len(var_data))
+        #     logger.info(var_data)
         self.write_value(handle, var_data_dic)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
@@ -272,3 +381,24 @@ class Value_LCS():
     #         print("write:" + str(val) +"      to:" + str(hand) )
     #     except BTLEException  as ex:
     #         print(ex)
+
+
+if __name__ == '__main__':
+    s1 = '12345678987667892734'
+    s2 = '12990679912346789675'
+
+    val = Value_LCS()
+    
+    t1_s = time.time()
+    val.find_lcseque(111, s1, s2)
+    t1_e = time.time()
+
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+    t2_s = time.time()
+    val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2))
+    t2_e = time.time()
+
+    logger.info(t1_e - t1_s)
+    logger.info(t2_e - t2_s)
+
+
