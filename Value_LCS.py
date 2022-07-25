@@ -82,22 +82,24 @@ class Value_LCS():
         return lcs_rule
     
 
-    def find_lcseque_with_lcs_rule(self, lcs_rule):
+    def find_lcseque_with_lcs_rule(self, lcs_rule, str_1, str_2):
         """
         根据 lcs_rule 进行变异
         """
         var_data_dic = {}
         count = 0
         payload_count = 0
-        for lcs_tag in lcs_rule:
-            lcs_tah_index = lcs_rule.index(lcs_tag)
+        for i in range(len(lcs_rule)):
+            lcs_tag = lcs_rule[i]
+            str1_sub_content = str_1[i*2] + str_1[i*2 + 1]
+            str2_sub_content = str_2[i*2] + str_2[i*2 + 1]
+
             if lcs_tag == self._static:
                 pass
             elif lcs_tag == self._coun:
-                # TODO fix here
                 # 生成 count 变异数据
-                count_var_data_list = self.var_string.count_var('ff')
-                # 生成 payload 编译数据
+                count_var_data_list = self.var_string.count_var(str1_sub_content)
+                # 生成 payload 变异数据
                 if payload_count > 0:
                     pyload_var_data_list = self.var_string.pyload_var(payload_count) + self.var_string.string_var(payload_count)       #随机字符串变异、坏字符串变异
                     payload_count = 0
@@ -111,6 +113,12 @@ class Value_LCS():
             elif lcs_tag == self._pyload:
                 payload_count += 2
             else:
+                # 生成 payload 变异数据
+                if payload_count > 0:
+                    pyload_var_data_list = self.var_string.pyload_var(payload_count) + self.var_string.string_var(payload_count)       #随机字符串变异、坏字符串变异
+                    payload_count = 0
+                    var_data_dic[count] = pyload_var_data_list
+                    count += 1
                 var_data_dic[count] = [lcs_tag.encode()]
                 count += 1
         
@@ -385,7 +393,7 @@ class Value_LCS():
 
 if __name__ == '__main__':
     s1 = '12345678987667892734'
-    s2 = '12990679912346789675'
+    s2 = '12990679912367789675'
 
     val = Value_LCS()
     
@@ -395,7 +403,7 @@ if __name__ == '__main__':
 
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     t2_s = time.time()
-    val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2))
+    val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2), s1, s2)
     t2_e = time.time()
 
     logger.info(t1_e - t1_s)
