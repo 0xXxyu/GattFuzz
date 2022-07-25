@@ -10,30 +10,30 @@ logger = Logger(loggername='Pkt_pro').get_logger()
 '''
 
 
-class Pkt_pro():
+class PcapProcessor():
 
     def __init__(self, pcap_path):
         self.handWvalue = {}
-        self.wri_handle = []
+        self.write_handle = []
         self.pcap_path = pcap_path
     
 
-    def pr_pcap(self):
-        pkts =  rdpcap(self.pcap_path)
-        for pkt in pkts: 
+    def process_pcap(self):
+        packets =  rdpcap(self.pcap_path)
+        for packet in packets: 
             try:                                            # 需要添加mac判断
-                raw = pkt.raw_packet_cache                  # <class 'bytes'>
+                raw = packet.raw_packet_cache                  # <class 'bytes'>
                 
                 #print("raw:", raw.hex())
-                att = raw[27:len(raw)-3]   
-                self.sub_pak(att)
+                attr_prot = raw[27 : len(raw) - 3]   
+                self.process_attr_protocol(attr_prot)
             except:
                 continue  
         # print(self.wri_handle)
         # print(self.handWvalue)
-        return self.wri_handle, self.handWvalue
+        return self.write_handle, self.handWvalue
 
-    def sub_pak(self, att):
+    def process_attr_protocol(self, att):
         
         opcode = att[:1]
 
@@ -65,3 +65,13 @@ class Pkt_pro():
         #return self.wri_handle, self.handWvalue
 
 
+if __name__ == '__main__':
+    pcap_path = './sum.pcap'
+    packets =  rdpcap(pcap_path)
+    logger.info(len(packets))
+    for packet_item in packets:
+        logger.info(packet_item)
+        raw = packet_item.raw_packet_cache
+        att = raw[27 : len(raw) - 3]
+        logger.info(att)
+        break

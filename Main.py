@@ -1,5 +1,5 @@
 from Value_LCS import Value_LCS
-from Pkt_pro import Pkt_pro
+from Pkt_pro import PcapProcessor
 from BLE_write import BLE_control
 from scapy.all import *
 import argparse
@@ -21,12 +21,12 @@ val = Value_LCS()
 7.21 一个问题
 多次连接才能连上
 '''
-def Pcap_fuzz(pcap_path,tar_mac):
+def fuzz_with_pcap(pcap_path,tar_mac):
     
-    latest_dic={}
+    latest_dic = {}
     #提取数据包 static          
     logger.info("#"*30+"开始处理pcap文件"+'#'*30)
-    pkt = Pkt_pro(pcap_path)
+    pkt = PcapProcessor(pcap_path)
 
     pcap_handles = []
     han_val_dic = {}
@@ -60,7 +60,7 @@ def Pcap_fuzz(pcap_path,tar_mac):
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
 
 
-def no_pcap_fuzz(tar_mac):
+def fuzz_without_pcap(tar_mac):
 
     # just write
     ble = BLE_control()
@@ -79,7 +79,7 @@ def no_pcap_fuzz(tar_mac):
 pcap_path = 'sum.pcapng'
 tar_mac = 'ec:a9:2a:78:18:48'
 logger.warning('start pcap fuzz')
-Pcap_fuzz(pcap_path, tar_mac)
+fuzz_with_pcap(pcap_path, tar_mac)
 
 # def main():
 #     args = parser.parse_args()
