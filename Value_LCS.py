@@ -60,7 +60,7 @@ class Value_LCS():
         
         # 字节长度不等于 1 且相同，认为整体为 _payload
         elif str1 == str2:
-            lcs_rule_t = ['++'] * int(str_len/2)
+            lcs_rule = ['++'] * int(str_len/2)
             return lcs_rule
         
         # 初始均为 --
