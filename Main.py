@@ -26,12 +26,12 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     latest_dic = {}
     #提取数据包 static          
     logger.info("#"*30+"开始处理pcap文件"+'#'*30)
-    pkt = PcapProcessor(pcap_path)
+    pcap_processor = PcapProcessor(pcap_path)
 
     pcap_handles = []
     han_val_dic = {}
 
-    pcap_handles, han_val_dic = pkt.pr_pcap()          # 返回handle列表和{handle：[value]}字典
+    pcap_handles, han_val_dic = pcap_processor.process_pcap()          # 返回handle列表和{handle：[value]}字典
     logger.info("#"*30+"处理pcap文件结束"+'#'*30)
     print("pcap handles:", pcap_handles)                # pcap中的handles
     #logger.info("all_value:", han_val_dic)

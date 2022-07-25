@@ -1,5 +1,6 @@
 import binascii
 from re import sub
+from struct import unpack
 from scapy.all import *
 from log import Logger
 logger = Logger(loggername='Pkt_pro').get_logger()
@@ -26,24 +27,36 @@ class PcapProcessor():
                 
                 #print("raw:", raw.hex())
                 attr_prot = raw[27 : len(raw) - 3]   
-                self.process_attr_protocol(attr_prot)
-            except:
+                self.parse_attr_protocol(attr_prot)
+            except Exception as e:
+                print(e)
+
                 continue  
         # print(self.wri_handle)
         # print(self.handWvalue)
         return self.write_handle, self.handWvalue
 
-    def process_attr_protocol(self, att):
+    def parse_attr_protocol(self, attr_prot):
         
-        opcode = att[:1]
+        opcode = attr_prot[:1]
+        
+        logger.info(opcode)
+
+        # 考虑 unpack 解析 小端序 0x52 -> 82
+        # opcode_t = unpack('<b', attr_prot[0:1])
+        # logger.info(hex(opcode_t[0]))
 
         # print("opcode:", opcode.hex())
         if opcode.hex() == '52':     #write command 0x52
 
-            handl0 = att[2:3]+att[1:2]           # 小端转大端，<class 'bytes'>
-            value0 = att[3:]
+            handl0 = attr_prot[2:3] + attr_prot[1:2]           # 小端转大端，<class 'bytes'>
+            value0 = attr_prot[3:]
             hand = handl0.hex()
             handl = int(hand, 16)
+
+            # handler_t = unpack('<h', attr_prot[1:3])
+            # logger.info(handl)
+            # logger.info(handler_t)
 
             value = value0.hex()
             
@@ -66,12 +79,6 @@ class PcapProcessor():
 
 
 if __name__ == '__main__':
-    pcap_path = './sum.pcap'
-    packets =  rdpcap(pcap_path)
-    logger.info(len(packets))
-    for packet_item in packets:
-        logger.info(packet_item)
-        raw = packet_item.raw_packet_cache
-        att = raw[27 : len(raw) - 3]
-        logger.info(att)
-        break
+    pcap_path = './4_mingwen3.pcap'
+    pcap_processor = PcapProcessor(pcap_path)
+    pcap_processor.process_pcap()
