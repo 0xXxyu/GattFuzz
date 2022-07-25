@@ -15,7 +15,7 @@ class PcapProcessor():
 
     def __init__(self, pcap_path):
         self.handWvalue = {}
-        self.write_handle = []
+        self.write_handler_list = []
         self.pcap_path = pcap_path
     
 
@@ -30,45 +30,42 @@ class PcapProcessor():
                 self.parse_attr_protocol(attr_prot)
             except Exception as e:
                 print(e)
-
                 continue  
         # print(self.wri_handle)
         # print(self.handWvalue)
-        return self.write_handle, self.handWvalue
+        return self.write_handler_list, self.handWvalue
 
     def parse_attr_protocol(self, attr_prot):
         
-        opcode = attr_prot[:1]
+        # opcode = attr_prot[:1]
         
-        logger.info(opcode)
+        # logger.info(opcode)
 
-        # 考虑 unpack 解析 小端序 0x52 -> 82
-        # opcode_t = unpack('<b', attr_prot[0:1])
-        # logger.info(hex(opcode_t[0]))
+        # opcode(1) + handler(2) + value(>=1)
+        if len(attr_prot) <= 4:
+            # logger.error('[-] error attr_prot')
+            return
+
+
+        opcode = unpack('<b', attr_prot[0:1])[0]
+
 
         # print("opcode:", opcode.hex())
-        if opcode.hex() == '52':     #write command 0x52
+        if opcode == 0x52:     #write command 0x52
+            handler = unpack('<h', attr_prot[1:3])[0]
+            logger.info(handler)
 
-            handl0 = attr_prot[2:3] + attr_prot[1:2]           # 小端转大端，<class 'bytes'>
-            value0 = attr_prot[3:]
-            hand = handl0.hex()
-            handl = int(hand, 16)
-
-            # handler_t = unpack('<h', attr_prot[1:3])
-            # logger.info(handl)
-            # logger.info(handler_t)
-
-            value = value0.hex()
+            value = attr_prot[3:]
+            value_hex = value.hex()
             
-            if handl not in self.handWvalue.keys():
-                self.wri_handle.append(handl)
-                val = []
-                val.append(value)
-                
-                self.handWvalue[handl] = val           #{handle:value}
+            if handler not in self.handWvalue.keys():
+                self.write_handler_list.append(value_hex)
+                # val = []
+                # val.append(value_hex)
+                self.handWvalue[handler] = [value_hex]           #{handle:value}
             else:
-                if value not in self.handWvalue[handl]:                 #去重
-                    self.handWvalue[handl].append(value)
+                if value_hex not in self.handWvalue[handler]:                 #去重
+                    self.handWvalue[handler].append(value_hex)
 
         #elif opcode.hex() == '12':
             #print("write request")
@@ -79,6 +76,6 @@ class PcapProcessor():
 
 
 if __name__ == '__main__':
-    pcap_path = './4_mingwen3.pcap'
+    pcap_path = './sum.pcap'
     pcap_processor = PcapProcessor(pcap_path)
     pcap_processor.process_pcap()
