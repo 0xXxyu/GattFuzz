@@ -4,7 +4,7 @@ from pickletools import pylist
 import random as ran
 #import pandas as pd
 
-class Var_string():
+class StringMutator():
 
     '''
 
@@ -70,13 +70,11 @@ class Var_string():
             "`id`&",
             "`id` &",
             ]
-        bad_str_list = []
+        encoded_bad_str_list = []
         for st in bad_strs:
             s = st.encode()
-            bad_str_list.append(s)
-
-        
-        return bad_str_list 
+            encoded_bad_str_list.append(s)
+        return encoded_bad_str_list 
 
 
     #def __init__(self):
@@ -88,17 +86,17 @@ class Var_string():
         
         
 
-    def pyload_var(self, size):         #pyload 随机数填充+边界填充
+    def get_pyload_mutation(self, size):         #pyload 随机数填充+边界填充
         min = 0
         max = int('f'*size, 16)               #转为10进制数据
 
-        pyload_list = []
+        pyload_mutation_record = []
         for n in range(16*size):
             data = "".join([ran.choice("0123456789ABCDEF") for i in range(size)])
             data = data.encode()
-            pyload_list.append(data)
+            pyload_mutation_record.append(data)
 
-        return pyload_list
+        return pyload_mutation_record
 
         '''
         with open(self.path, 'a+') as fs: 
@@ -120,7 +118,7 @@ class Var_string():
     #     csv_write = pd.DataFrame({"pyload":py_list, "simple":sim_list, "string":str_list, "count":count_list})
     #     csv_write.to_csv(self.path)
 
-    def string_var(self, str_len):           #坏字符串填充
+    def get_string_mutation(self, str_len):           #坏字符串填充
         bad_strs = [
             "!@#$%%^#$%#$@#$%$$@#$%^^**(()",
         "", 
@@ -155,12 +153,12 @@ class Var_string():
         ';CMD=$"reboot";$CMD',
         ";id",
         ]
-        bad_str_all = []
+        bad_str_mutation_record = []
         for bad_str in bad_strs:
             if len(bad_str.encode()) <= str_len*2:
                 st = bad_str.encode()+(str_len*2-len(bad_str.encode()))*b'0'
-                bad_str_all.append(st)
-        return bad_str_all
+                bad_str_mutation_record.append(st)
+        return bad_str_mutation_record
 
         '''
         py_list = ['NULL']*len(bad_str)
@@ -170,21 +168,22 @@ class Var_string():
         csv_write = pd.DataFrame({"pyload":py_list, "simple":sim_list, "string":bad_str, "count":count_list})
         csv_write.to_csv(self.path)
         '''
-    def count_var(self,count_str):      #count 边界填充+有界数填充          
-        le = len(count_str)
-        count_min = '0'*le               #count 取00和ff
-        count_max = 'f'*le
+    def get_count_mutation(self, count_str):      #count 边界填充+有界数填充          
+        count_len  = len(count_str)
+        count_min = '0' * count_len               #count 取00和ff
+        count_max = 'f' * count_len
 
-        cont_list = []
-        cont_list.append(count_min.encode())
-        cont_list.append(count_max.encode())
-        for n in range(le*16):
-            coun = ran.randint(int(count_str,16), int(count_max, 16))
-            c = str(hex(coun)).replace('0x','')
-            count = c.encode()
-            cont_list.append(count)
+        count_mutation_record = []
+        count_mutation_record.append(count_min.encode())
+        count_mutation_record.append(count_max.encode())
+
+        for n in range(count_len * 16):
+            count_random = ran.randint(int(count_str, 16), int(count_max, 16))
+            count_hex = str(hex(count_random)).replace('0x','')
+            count_mutated = count_hex.encode()
+            count_mutation_record.append(count_mutated)
                    
-        return cont_list
+        return count_mutation_record
 
         '''
         with open(self.path, 'a+') as fs: 

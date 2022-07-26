@@ -29,7 +29,7 @@ class PcapProcessor():
                 attr_prot = raw[27 : len(raw) - 3]   
                 self.parse_attr_protocol(attr_prot)
             except Exception as e:
-                print(e)
+                logger.warning(e)
                 continue  
         # print(self.wri_handle)
         # print(self.handWvalue)
