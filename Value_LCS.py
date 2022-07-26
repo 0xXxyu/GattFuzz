@@ -3,7 +3,7 @@ import time
 # from distutils.file_util import write_file
 
 #import pandas as pd
-from Var_string import Var_string
+from Var_string import StringMutator
 
 from log import Logger
 logger = Logger(loggername='Value_LCS').get_logger()
@@ -12,15 +12,15 @@ logger = Logger(loggername='Value_LCS').get_logger()
 接收pcap字典，value列表逐个比较，给出变异字段
 '''
 
-class Value_LCS():
+class ValueLCS():
 
     def __init__(self):
         self._static = '**'
-        self._coun = '##'
+        self._count = '##'
         self._simple = '^^'
         self._pyload = '++'  
         self._simple_list = []              # 2字节value
-        self.var_string = Var_string()
+        self.string_mutator = StringMutator()
         self.Muta_dic = {}
 
 
@@ -74,7 +74,7 @@ class Value_LCS():
                 lcs_rule[i] = str_list_01[i]
             # 差值为 1，认为是 _coun
             elif hex_diff == 1:
-                lcs_rule[i] = self._coun
+                lcs_rule[i] = self._count
             # 否则，认为是 _pyload
             else:
                 lcs_rule[i] = self._pyload
@@ -86,7 +86,7 @@ class Value_LCS():
         """
         根据 lcs_rule 进行变异
         """
-        var_data_dic = {}
+        mutation_data_dic = {}
         count = 0
         payload_count = 0
         for i in range(len(lcs_rule)):
@@ -96,17 +96,17 @@ class Value_LCS():
 
             if lcs_tag == self._static:
                 pass
-            elif lcs_tag == self._coun:
+            elif lcs_tag == self._count:
                 # 生成 count 变异数据
-                count_var_data_list = self.var_string.count_var(str1_sub_content)
+                count_mutation_data_list = self.string_mutator.get_count_mutation(str1_sub_content)
                 # 生成 payload 变异数据
                 if payload_count > 0:
-                    pyload_var_data_list = self.var_string.pyload_var(payload_count) + self.var_string.string_var(payload_count)       #随机字符串变异、坏字符串变异
+                    pyload_mutation_data_list = self.string_mutator.get_pyload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
                     payload_count = 0
-                    var_data_dic[count] = pyload_var_data_list
+                    mutation_data_dic[count] = pyload_mutation_data_list
                     count += 1
                 
-                var_data_dic[count] = count_var_data_list
+                mutation_data_dic[count] = count_mutation_data_list
                 count += 1
             elif lcs_tag == self._simple:
                 pass
@@ -115,27 +115,27 @@ class Value_LCS():
             else:
                 # 生成 payload 变异数据
                 if payload_count > 0:
-                    pyload_var_data_list = self.var_string.pyload_var(payload_count) + self.var_string.string_var(payload_count)       #随机字符串变异、坏字符串变异
+                    pyload_mutation_data_list = self.string_mutator.get_pyload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
                     payload_count = 0
-                    var_data_dic[count] = pyload_var_data_list
+                    mutation_data_dic[count] = pyload_mutation_data_list
                     count += 1
-                var_data_dic[count] = [lcs_tag.encode()]
+                mutation_data_dic[count] = [lcs_tag.encode()]
                 count += 1
         
         # 以 payload 结尾
         if payload_count != 0:
-            pyload_var_data_list = self.var_string.pyload_var(payload_count) + self.var_string.string_var(payload_count)       #随机字符串变异、坏字符串变异
+            pyload_var_data_list = self.string_mutator.get_pyload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
             payload_count = 0
-            var_data_dic[count] = pyload_var_data_list
+            mutation_data_dic[count] = pyload_var_data_list
             count += 1
 
-        # print('===============')
-        # for i in var_data_dic:
-        #     print('--------------------')
-        #     var_data = var_data_dic[i]
-        #     logger.info(len(var_data))
-        #     logger.info(var_data)
-        return var_data_dic
+        print('===============')
+        for i in mutation_data_dic:
+            print('--------------------')
+            mutation_data = mutation_data_dic[i]
+            logger.info(len(mutation_data))
+            logger.info(mutation_data)
+        return mutation_data_dic
 
 
     '''
@@ -143,74 +143,74 @@ class Value_LCS():
 
     每个handle生成一个变异数据集合
     '''
-    def find_lcseque(self, handle, s1, s2):
+    def find_lcseque(self, handle, str1, str2):
         # from builtins import str
         # timest = str(int(time.time()))
 
-        var_data_dic = {}
-        len1 = int(len(s1)/2)
-        len2 = int(len(s2)/2)
+        mutation_data_dic = {}
+        len1 = int(len(str1) / 2)
+        len2 = int(len(str2) / 2)
 
-        s01 = []
-        s02 = []
+        str1_splited_list = []
+        str2_splited_list = []
     
         for ik in range(len1):
-            s01.append(s1[ik*2]+s1[ik*2+1])         #按2字节分割字符串
+            str1_splited_list.append(str1[ik*2] + str1[ik*2 + 1])         #按2字节分割字符串
         for jk in range(len2):
-            s02.append(s2[jk*2]+s2[jk*2+1])
+            str2_splited_list.append(str2[jk*2] + str2[jk*2 + 1])
 
-        str = self._pyload *len(s01)
+        str = self._pyload * len(str1_splited_list)
 
         ly_count = 0                        # pyload计数位
         #标记static
-        for i in range(len(s01)):
+        for i in range(len(str1_splited_list)):
             # logger.info("处理位：{}".format(s01[i]))
-            hex0 = abs(int(s01[i],16)-int(s02[i],16))
+            hex0 = abs(int(str1_splited_list[i], 16) - int(str2_splited_list[i], 16))
 
-            if len(s01) == 1:
-                if s01[0] not in self._simple_list:
-                    self._simple_list.append(s01[0])        #固定输入字节,比如0xfe05，mac
-                    if s02[0] not in self._simple_list:
-                        self._simple_list.append(s02[0])
+            if len(str1_splited_list) == 1:
+                if str1_splited_list[0] not in self._simple_list:
+                    self._simple_list.append(str1_splited_list[0])        #固定输入字节,比如0xfe05，mac
+                    if str2_splited_list[0] not in self._simple_list:
+                        self._simple_list.append(str2_splited_list[0])
                 str = str[:i*2] + self._simple + str[(i+1)*2:]
 
-                simple_var_list = self._simple_list + self.var_string.string_var(1) + self.var_string.bad_strs_list() + self.var_string.pyload_var(2)   # 2字节数据同时调用“坏”字符串进行测试
+                simple_var_list = self._simple_list + self.string_mutator.get_string_mutation(1) + self.string_mutator.bad_strs_list() + self.string_mutator.get_pyload_mutation(2)   # 2字节数据同时调用“坏”字符串进行测试
                 
                 #self.write_var(simple_var_list)
-                var_data_dic[0] = simple_var_list
+                mutation_data_dic[0] = simple_var_list
 
                 break    
                 # return self._simple_list                                   #2字节数据
-            elif s01 == s02:
+            elif str1_splited_list == str2_splited_list:
                 
-                var_data_dic[0] = self.var_string.string_var(len(s01)*2) + self.var_string.pyload_var(len(s01)*2) + self.var_string.bad_strs_list()
+                mutation_data_dic[0] = self.string_mutator.get_string_mutation(len(str1_splited_list) * 2) + self.string_mutator.get_pyload_mutation(len(str1_splited_list) * 2) + self.string_mutator.bad_strs_list()
                 
                 break
  
-            elif s01[i] == s02[i]:              #当前字节相同  
-                str = str[:i*2] + s01[i] + str[(i+1)*2:]
+            elif str1_splited_list[i] == str2_splited_list[i]:              #当前字节相同  
+                str = str[:i*2] + str1_splited_list[i] + str[(i+1)*2:]
 
                 #self.write_var([s01[i]])
 
-                var_data_dic[i]=[s01[i].encode()]
+                mutation_data_dic[i]=[str1_splited_list[i].encode()]
                 #print("标记static，pyload_cont置0")
-                if ly_count>0:
+                if ly_count > 0:
                     #print("标记static后pyload_cont:", ly_count)
-                    pyload_list = self.var_string.pyload_var(ly_count) + self.var_string.string_var(ly_count)       #随机字符串变异、坏字符串变异
+                    pyload_mutation_list = self.string_mutator.get_pyload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)       #随机字符串变异、坏字符串变异
 
-                    var_data_dic[i-1] = pyload_list
+                    mutation_data_dic[i-1] = pyload_mutation_list
                 ly_count = 0
             elif hex0 == 1:
-                str = str[:i*2] + self._coun + str[(i+1)*2:]                   #标记计数位,一般两个字节
-                count_list = self.var_string.count_var(s01[i])
+                str = str[:i*2] + self._count + str[(i+1)*2:]                   #标记计数位,一般两个字节
+                count_mutation_list = self.string_mutator.get_count_mutation(str1_splited_list[i])
                 #self.write_var(count_list)
-                var_data_dic[i] = count_list
+                mutation_data_dic[i] = count_mutation_list
                 # print("标记count，pyload_cont置0")
-                if ly_count>0:
+                if ly_count > 0:
                     #print("标记count后pyload_cont:", ly_count)
-                    pyload_list = self.var_string.pyload_var(ly_count) + self.var_string.string_var(ly_count)
+                    pyload_mutation_list = self.string_mutator.get_pyload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)
 
-                    var_data_dic[i-1] = pyload_list
+                    mutation_data_dic[i-1] = pyload_mutation_list
                 ly_count = 0
             else:
                 if i == 0:
@@ -223,8 +223,8 @@ class Value_LCS():
 
        
         if ly_count != 0:
-            pyload_list = self.var_string.pyload_var(ly_count) + self.var_string.string_var(ly_count)
-            var_data_dic[i-1] = pyload_list
+            pyload_mutation_list = self.string_mutator.get_pyload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)
+            mutation_data_dic[i-1] = pyload_mutation_list
             # print("py_load_count:", ly_count)
 
 
@@ -235,14 +235,14 @@ class Value_LCS():
         # print(self._simple_list)
 
         # print("value_lcs:", handle)
-        # logger.info(str)
-        # print('===============')
-        # for i in var_data_dic:
-        #     print('--------------------')
-        #     var_data = var_data_dic[i]
-        #     logger.info(len(var_data))
-        #     logger.info(var_data)
-        self.write_value(handle, var_data_dic)              
+        logger.info(str)
+        print('===============')
+        for i in mutation_data_dic:
+            print('--------------------')
+            var_data = mutation_data_dic[i]
+            logger.info(len(var_data))
+            logger.info(var_data)
+        self.write_value(handle, mutation_data_dic)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
         m = [[0 for x in range(len2 + 1)] for y in range(len1 + 1)]
@@ -395,7 +395,7 @@ if __name__ == '__main__':
     s1 = '12345678987667892734'
     s2 = '12990679912367789675'
 
-    val = Value_LCS()
+    val = ValueLCS()
     
     t1_s = time.time()
     val.find_lcseque(111, s1, s2)
