@@ -1,4 +1,4 @@
-from Value_LCS import Value_LCS
+from Value_LCS import ValueLCS
 from Pkt_pro import PcapProcessor
 from BLE_write import BLE_control
 from scapy.all import *
@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--file', help='input pcap file',required=False)
 parser.add_argument('-m', '--mac', help='mac address of target', required=True)
 
-val = Value_LCS()
+val = ValueLCS()
 
 
 '''
@@ -41,7 +41,7 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     logger.info("#"*30+ "设备扫描"+ '#'*30)
     ble = BLE_control()                 
     ble.tar_con(tar_mac)
-    bulepy_handles = ble.logging.info_char()                      # 建立连接打印read，并打开所有notification
+    bulepy_handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
     logger.info("bluepy handles:", bulepy_handles)
 
     # 存在部分handle不通信的情况，pcap中没有数据，补充这部分
@@ -58,7 +58,6 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     # logger.info(after_Muta_dic)
     ble.tar_con(tar_mac)
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
-
 
 def fuzz_without_pcap(tar_mac):
 

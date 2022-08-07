@@ -53,7 +53,7 @@ class PcapProcessor():
         # print("opcode:", opcode.hex())
         if opcode == 0x52:     #write command 0x52
             handler = unpack('<h', attr_prot[1:3])[0]
-            logger.info(handler)
+            # logger.info(handler)
 
             value = attr_prot[3:]
             value_hex = value.hex()
