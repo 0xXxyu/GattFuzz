@@ -76,24 +76,17 @@ def fuzz_without_pcap(tar_mac):
         val.var_no_pcap(tar_mac, handles)
         n=+1
 
-#pcap_path = 'E:\IoT_Test\德施曼智能门锁\\5.pcapng'
-#pcap_path = 'E:\IoT_Test\小米手环\\4_mingwen3.pcapng'
-pcap_path = 'sum.pcapng'
-tar_mac = 'ec:a9:2a:78:18:48'
-logger.warning('start pcap fuzz')
-fuzz_with_pcap(pcap_path, tar_mac)
+def main():
+    args = parser.parse_args()
+    pcap_path = args.file
+    target_mac = args.mac
+    try:
+        if not pcap_path:
+            no_pcap_fuzz(target_mac)
+        else:
+            Pcap_fuzz(pcap_path, target_mac)
+    except Exception as e:
+        print('[-] fuzz error : {}'.format(e))
 
-# def main():
-#     args = parser.parse_args()
-#     pcap_path = args.file
-#     target_mac = args.mac
-#     try:
-#         if not pcap_path:
-#             no_pcap_fuzz(target_mac)
-#         else:
-#             Pcap_fuzz(pcap_path, target_mac)
-#     except Exception as e:
-#         print('[-] fuzz error : {}'.format(e))
-
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
