@@ -8,7 +8,7 @@ class Logger():
         formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
 
         if not self.logger.handlers:
-            # 日志出输出到控制台
+            # 日志输出到控制台
             stream_handler = logging.StreamHandler()
             stream_handler.setLevel(loglevel)
             stream_handler.setFormatter(formatter)

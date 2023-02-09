@@ -17,6 +17,8 @@ class StringMutator():
 
     # 1和5合为size*16次随机字符串输入
     # 2调用坏字符串列表
+
+    # add pyload
     
     '''
     def bad_strs_list(self):
@@ -69,6 +71,7 @@ class StringMutator():
             "`id`",
             "`id`&",
             "`id` &",
+            ""
             ]
         encoded_bad_str_list = []
         for st in bad_strs:

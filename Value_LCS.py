@@ -133,8 +133,8 @@ class ValueLCS():
         for i in mutation_data_dic:
             print('--------------------')
             mutation_data = mutation_data_dic[i]
-            logger.info(len(mutation_data))
-            logger.info(mutation_data)
+            # logger.info(len(mutation_data))
+            # logger.info(mutation_data)
         return mutation_data_dic
 
 
@@ -235,13 +235,13 @@ class ValueLCS():
         # print(self._simple_list)
 
         # print("value_lcs:", handle)
-        logger.info(str)
+        # logger.info(str)
         print('===============')
         for i in mutation_data_dic:
             print('--------------------')
             var_data = mutation_data_dic[i]
-            logger.info(len(var_data))
-            logger.info(var_data)
+            # logger.info(len(var_data))
+            # logger.info(var_data)
         self.write_value(handle, mutation_data_dic)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
@@ -333,7 +333,7 @@ class ValueLCS():
             self.Muta_dic[handle] = after_var_value      #   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
         else:
             self.Muta_dic[handle] = self.Muta_dic[handle] + after_var_value
-        logger.info("mula_dic:")
+        # logger.info("mula_dic:")
 
         # return handle, after_var_value
         # self.write_to_handle(handle, after_var_value)
@@ -377,7 +377,7 @@ class ValueLCS():
 
     def var_no_pcap(self, handle):
         
-        after_strs = self.var_string.bad_strs_list() + self.var_string.pyload_var(2) + self.var_string.pyload_var(4) + self.var_string.pyload_var(6) + self.var_string.pyload_var(8) + self.var_string.pyload_var(10) + self.var_string.pyload_var(12) + self.var_string.pyload_var(20)
+        after_strs = self.string_mutator.bad_strs_list() + self.string_mutator.get_pyload_mutation(2) + self.string_mutator.get_pyload_mutation(4) + self.string_mutator.get_pyload_mutation(6) + self.string_mutator.get_pyload_mutation(8) + self.string_mutator.get_pyload_mutation(10) + self.string_mutator.get_pyload_mutation(12) + self.string_mutator.get_pyload_mutation(20)
         self.Muta_dic[handle] = after_strs
 
     # def wri_handle(self, mac, val, hand):
@@ -391,22 +391,24 @@ class ValueLCS():
     #         print(ex)
 
 
-if __name__ == '__main__':
-    s1 = '12345678987667892734'
-    s2 = '12990679912367789675'
+# if __name__ == '__main__':
+#     s1 = '125678'
+#     s2 = '129906'
 
-    val = ValueLCS()
-    
-    t1_s = time.time()
-    val.find_lcseque(111, s1, s2)
-    t1_e = time.time()
+#     test_dic={'23':['123456','123357'], '24':[]}
+#     val = ValueLCS()
+#     Muta_di = val.pro_dict(test_dic)
+#     print(Muta_di)
+#     # t1_s = time.time()
+#     # val.find_lcseque(11, s1, s2)
+#     # t1_e = time.time()
 
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-    t2_s = time.time()
-    val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2), s1, s2)
-    t2_e = time.time()
+#     # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+#     # t2_s = time.time()
+#     # val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2), s1, s2)
+#     # t2_e = time.time()
 
-    logger.info(t1_e - t1_s)
-    logger.info(t2_e - t2_s)
+#     # logger.info(t1_e - t1_s)
+#     # logger.info(t2_e - t2_s)
 
 

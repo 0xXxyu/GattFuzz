@@ -8,6 +8,8 @@ from bluepy.btle import Peripheral,UUID,DefaultDelegate,Scanner
 from bluepy.btle import BTLEException
 import _thread
 import time
+from log import Logger
+logger = Logger(loggername='Gatt_Write').get_logger()
 
 '''
 connect to target device
@@ -28,19 +30,62 @@ class BLE_control():
  
     # connect to target mac
     def tar_con(self, tar_mac):
-        print(" Begin scan:")
         scanner = Scanner()
         devices = scanner.scan(timeout=10)
-        for dev in devices:
+        logger.info("Begin sacn")
+        # logger.info("发现 %d 个设备", len(devices))
+        n = 1
+        for dev in devices:    
             if dev.addr==tar_mac:
-                print("find target device:")
-                print(dev)
-                print("%-30s %-20s" % (dev.getValueText(9), dev.addr)) 
-                self._mac = tar_mac 
-                self._conn = Peripheral(dev.addr, dev.addrType )
-                self._conn.setDelegate(ReceiveDelegate())
-                self._conn.setMTU(500)
+                logger.info("Find target device::"+ tar_mac)
+                # logger.info("\n")
+                # logger.info("               ---------广播信息------------             ")
+                # logger.info("\n")
+                # for (adtype, desc, value) in dev.getScanData():
+                #     logger.info("%s = %s" % (desc, value))
+                # logger.info("\n")
+                # logger.info("               ---------广播信息------------             ")
+                for i in range(0,5):
+                    # logger.info("i = %d ", i)
+                    try: 
+                        # logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
+                        self._conn = Peripheral(dev.addr, dev.addrType)
+                        break
+                    except:
+                        if i<4:
+                            continue
+                        else:
+                            logger.info('\n')
+                            logger.error("The device connection failed, check the device status or previous pyload and try again.")
+                            break
+                if self._conn:
+                    self._mac = tar_mac
+                    self._conn.setDelegate(ReceiveDelegate())
+                    self._conn.setMTU(500)
+                    # self.print_char()
+            else: 
+                if n < len(devices):
+                    n = n+1
+                    continue
+                else:
+                    logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
+                    break       
 
+
+        # print(" Begin scan:")
+        # scanner = Scanner()
+        # devices = scanner.scan(timeout=10)
+        # for dev in devices:
+        #     if dev.addr==tar_mac:
+        #         print("find target device:")
+        #         print(dev)
+        #         print("%-30s %-20s" % (dev.getValueText(9), dev.addr)) 
+        #         self._mac = tar_mac 
+        #         self._conn = Peripheral(dev.addr, dev.addrType )
+        #         self._conn.setDelegate(ReceiveDelegate())
+        #         self._conn.setMTU(500)
+
+    
     # hold connect            
     def con_hold(self):
         self.tar_con(self._mac)
@@ -169,22 +214,25 @@ class BLE_control():
     #                 print(ex)
     
     # write value to target device
+
+
     def wri_value(self, handle, val):
-        if self._conn == True:
-            if type(val) != bytes:
-                val = val.encode()
-            try:
-                respon = self._conn.writeCharacteristic(handle, val, withResponse=True)                ## python3.*  type(val)=byte
-                print("write:" + str(val) +"to:" + str(handle) + "response: " + respon)
-            except BTLEException  as ex:
-                print(ex)
-        else:
-            self.con_hold()
-            try:
-                respon = self._conn.writeCharacteristic(handle, val, withResponse=True)                ## python3.*  type(val)=byte
-                print("write:" + str(val) +"to:" + str(handle) + "response: " + respon)
-            except BTLEException  as ex:
-                print(ex)
+
+        if type(val) != bytes:
+            val = val.encode()
+        try:
+            respon = self._conn.writeCharacteristic(handle, val, withResponse=True)                ## python3.*  type(val)=byte
+            logger.info("Write: {} to: {}  response: {}".format(str(val),str(handle),respon))
+        except BTLEException  as ex:
+            logger.error("GATT write error: {}".format(str(ex)))
+
+        # else:
+        #     self.con_hold()
+        #     try:
+        #         respon = self._conn.writeCharacteristic(handle, val, withResponse=True)                ## python3.*  type(val)=byte
+        #         logger.info("Write: {} to: {}  response: {}".format(str(val),str(handle),respon))
+        #     except BTLEException  as ex:
+        #         logger.error("GATT write error: {}".format(str(ex)))
 
 
     def write_to_csv(self, after_Muta_dic):
@@ -194,14 +242,27 @@ class BLE_control():
             
             with open(self.path, 'w+', newline='') as f:
                 csv_doc = csv.writer(f)
-                for k in after_Muta_dic[handle]:
-                    self.wri_value(handle, k)               
-                    print("write value："+ str(k) + "to handle:"+str(handle)) 
-                    #k = k.decode(encoding="utf-8").replace('|', '')
-                    try:
-                        csv_doc.writerow(k)
-                    except:
-                        continue                                       
+
+                vlist = after_Muta_dic[handle]
+
+                for k in range(len(vlist)):
+                    # TODO 在每次写之前进行状态判断
+                    
+                    if self._conn == True:
+                        self.wri_value(handle, vlist(k))               
+                        logger.info("Write value:{} to handle: {}".format(str(vlist(k)),str(handle)))
+                        #k = k.decode(encoding="utf-8").replace('|', '')
+                        try:
+                            csv_doc.writerow(vlist(k))
+                        except:
+                            # 部分bad strings写入csv会报错，这里先忽略，所以最终的csv文件可能会不全
+                            continue
+                    else:
+                        # 1. 扫描是否广播； 2. 扫描是否可连接   
+                        if k != 0:
+                            logger.error("Check handle:{},     pyload: {}".format(str(handle), str(vlist(k-1))))
+                            self.con_hold()
+                                                           
 
     # def wri_handle(self, mac, val, hand):
     #     conn = Peripheral(mac)

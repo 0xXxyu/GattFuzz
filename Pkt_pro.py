@@ -3,6 +3,8 @@ from re import sub
 from struct import unpack
 from scapy.all import *
 from log import Logger
+import matplotlib
+matplotlib.use('Agg')
 logger = Logger(loggername='Pkt_pro').get_logger()
 '''
 提取pcap中request_command handle和value到字典
@@ -23,8 +25,7 @@ class PcapProcessor():
         packets =  rdpcap(self.pcap_path)
         for packet in packets: 
             try:                                            # 需要添加mac判断
-                raw = packet.raw_packet_cache                  # <class 'bytes'>
-                
+                raw = packet.raw_packet_cache                  # <class 'bytes'>               
                 #print("raw:", raw.hex())
                 attr_prot = raw[27 : len(raw) - 3]   
                 self.parse_attr_protocol(attr_prot)

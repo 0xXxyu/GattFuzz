@@ -13,8 +13,8 @@ parser.add_argument('-m', '--mac', help='mac address of target', required=True)
 
 val = ValueLCS()
 
-
 '''
+2023.2.8 补充 空pyload
 7.21 一个问题（已解决）
 基于pcap的变异覆盖率
 
@@ -54,9 +54,12 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     logger.info("latest pcap dic:", latest_dic)
     
     logger.info("#"*30+ "fuzz 输入"+ '#'*30)
-    after_Muta_dic = val.pro_dict( latest_dic)              # 进行规则标记、变异，返回变异后字典
+    after_Muta_dic = val.pro_dict(latest_dic)              # 进行规则标记、变异，返回变异后字典
+    # TODO add thread
+    
     # logger.info(after_Muta_dic)
     ble.tar_con(tar_mac)
+    # TODO +判断连接状态
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
 
 def fuzz_without_pcap(tar_mac):
