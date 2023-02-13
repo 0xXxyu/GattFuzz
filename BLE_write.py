@@ -33,7 +33,7 @@ class BLE_control():
         scanner = Scanner()
         devices = scanner.scan(timeout=10)
         logger.info("Begin sacn")
-        # logger.info("发现 %d 个设备", len(devices))
+        logger.info("发现 %d 个设备", len(devices))
         n = 1
         for dev in devices:    
             if dev.addr==tar_mac:
@@ -48,7 +48,7 @@ class BLE_control():
                 for i in range(0,5):
                     # logger.info("i = %d ", i)
                     try: 
-                        # logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
+                        logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
                         self._conn = Peripheral(dev.addr, dev.addrType)
                         break
                     except:
@@ -273,3 +273,9 @@ class BLE_control():
     #         print("write:" + str(val) +"      to:" + str(hand) )
     #     except BTLEException  as ex:
     #         print(ex)
+
+
+tar_mac = "FB:65:D4:C2:BE:5A"
+ble = BLE_control()                 
+ble.tar_con(tar_mac.lower())
+bulepy_handles = ble.print_char()

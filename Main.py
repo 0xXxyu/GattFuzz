@@ -82,9 +82,9 @@ def main():
     target_mac = args.mac
     try:
         if not pcap_path:
-            no_pcap_fuzz(target_mac)
+            fuzz_without_pcap(target_mac.lower())
         else:
-            Pcap_fuzz(pcap_path, target_mac)
+            fuzz_with_pcap(pcap_path, target_mac.lower())
     except Exception as e:
         print('[-] fuzz error : {}'.format(e))
 

@@ -26,13 +26,13 @@ class PcapProcessor():
         for packet in packets: 
             try:                                            # 需要添加mac判断
                 raw = packet.raw_packet_cache                  # <class 'bytes'>               
-                #print("raw:", raw.hex())
+                # print("raw:", raw.hex())
                 attr_prot = raw[27 : len(raw) - 3]   
                 self.parse_attr_protocol(attr_prot)
             except Exception as e:
                 logger.warning(e)
                 continue  
-        # print(self.wri_handle)
+        # print(self.write_handler_list)
         # print(self.handWvalue)
         return self.write_handler_list, self.handWvalue
 
@@ -79,4 +79,6 @@ class PcapProcessor():
 if __name__ == '__main__':
     pcap_path = './sum.pcap'
     pcap_processor = PcapProcessor(pcap_path)
-    pcap_processor.process_pcap()
+    hand, val = pcap_processor.process_pcap()
+    print(hand)
+    print(val)
