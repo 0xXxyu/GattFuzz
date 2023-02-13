@@ -2,7 +2,7 @@ import binascii
 from re import sub
 from struct import unpack
 from scapy.all import *
-from log import Logger
+from Logger import Logger
 import matplotlib
 matplotlib.use('Agg')
 logger = Logger(loggername='Pkt_pro').get_logger()

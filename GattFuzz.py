@@ -1,10 +1,10 @@
-from Value_LCS import ValueLCS
-from Pkt_pro import PcapProcessor
-from BLE_write import BLE_control
+from ValueLCS import ValueLCS
+from PcapProcessor import PcapProcessor
+from BLEControl import BLEControl
 from scapy.all import *
 import argparse
 
-from log import Logger
+from Logger import Logger
 logger = Logger(loggername='Main').get_logger()
 
 parser = argparse.ArgumentParser()
@@ -39,7 +39,7 @@ def fuzz_with_pcap(pcap_path,tar_mac):
 
     # connect device and logger.info chars
     logger.info("#"*30+ "设备扫描"+ '#'*30)
-    ble = BLE_control()                 
+    ble = BLEControl()                 
     ble.tar_con(tar_mac)
     bulepy_handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
     logger.info("bluepy handles:", bulepy_handles)
@@ -65,7 +65,7 @@ def fuzz_with_pcap(pcap_path,tar_mac):
 def fuzz_without_pcap(tar_mac):
 
     # just write
-    ble = BLE_control()
+    ble = BLEControl()
     ble.tar_con(tar_mac)
     handles = ble.logging.info_char()
     logger.info(handles)

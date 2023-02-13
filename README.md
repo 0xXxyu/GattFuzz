@@ -19,6 +19,10 @@ Bluepy、scapy
 
 ### Update
 
+
+#### 2023.2.13 update
+1. 更改部分错误
+
 #### 2023.2.8 update
 1. add new pyload
 2. add device status scan
