@@ -1,8 +1,6 @@
 from cgitb import enable
 import csv
 import threading
-from urllib import response
-from xml.dom import InvalidModificationErr
 from bluepy import btle
 from bluepy.btle import Peripheral,UUID,DefaultDelegate,Scanner
 from bluepy.btle import BTLEException
@@ -14,6 +12,7 @@ logger = Logger(loggername='Gatt_Write').get_logger()
 '''
 connect to target device
 
+#TODO 监听所有notification接口，所有indications属性
 
 '''
 
@@ -22,7 +21,7 @@ class ReceiveDelegate(DefaultDelegate):
         super().__init__()
     
     def handleNotification(self, cHandle, data):
-        print("handle: " + cHandle + "nofity" "----> ", data)
+        logger.error("Recevied handle: {}  nofity  ----> {} ".format(str(cHandle), str(data)))
 
 
 
@@ -89,6 +88,7 @@ class BLEControl():
     # hold connect            
     def con_hold(self):
         self.tar_con(self._mac)
+        self.open_notify()       # 打开notify
 
     def print_char(self):
         # Get service & characteristic
@@ -103,7 +103,7 @@ class BLEControl():
                 Properties = charac.propertiesToString()
                 print("    Characteristic: ", uu)
                 print("        Properties: ", Properties)
-                print("               handle:", charac.getHandle())
+                print("            handle: ", charac.getHandle())
 
                 #read
                 if charac.supportsRead():
@@ -115,8 +115,8 @@ class BLEControl():
                         # print(uu+" read failed!!")
                         continue 
 
+            
                 # listen notification
-                # if Properties.find('NOTIFY'):
                 #     try:
                 #         handl = charac.getHandle()
                 #         notify = threading.Thread(target=self.wait_noti, name=str(handl), args=(handl, ))
@@ -141,99 +141,71 @@ class BLEControl():
                     if han not in han_list:      
                         han_list.append(han)
 
-                '''
-                if  Properties.find('WRITE NO RESPONSE WRITE'):
-                    print("WRITE NO RESPONSE WRITE")
+                if Properties.find('NOTIFY'):
+                    handle = charac.getHandle()
                     try:
-                        response = charac.write(data, withResponse=True)
-                        print("        try fuzz0 ", uu )
-                        print("        write data: ", data)
-                        print("     write_response: ", response)
+                        self._conn.writeCharacteristic(handle, b'\x01\x00')  #\x01\x00 for notify
                     except BTLEException:
-                        print("no response") 
-
-                elif  Properties.find('WRITE NO RESPONSE'):
-                    print("WRITE NO RESPONSE")
+                        logger.warning("Open handle :{} notification error.".format(str(handle)))
+                        continue
+                # listen INDICATE
+                if Properties.find('INDICATE'):
+                    handle = charac.getHandle()
                     try:
-                        charac.write(data, withResponse=False)
-                        print("       try fuzz-1: ", uu)
-                        print("no response write data: ", data)
+                        self._conn.writeCharacteristic(handle, b'\x02\x00')
+                        # handl = charac.getHandle()
+                        # indicate = threading.Thread(target=self.wait_indications, name=str(handl), args=(handl, ))
+                        # indicate.start()                   
                     except BTLEException:
-                        print("no response write faild!")
-
-                elif Properties.find('WRITE'):
-                    print("JUST WRITE")
-                    try:
-                        response = charac.write(data, withResponse=True)
-                        print("       try fuzz2:  ", uu )
-                        print("    write data:  ", data)
-                        print(" write_response: ", response)
-                    except BTLEException:
-                        print("no response") 
-                else:
-                    continue
-                '''
+                        # print(uu + "notify failed!!")
+                        logger.warning("Open handle :{} INDICATE error.".format(str(handle)))
+                        continue
+                
             print(60*'-')
         self._conn.disconnect()
-        return han_list
-
-    def wait_noti(self, handle):
-
-        self._conn.writeCharacteristic(handle, b'\x01\x00')  #\x01\x00 for notify
-
-        while True:
-            if self._conn.waitForNotifications(3.0):
-            # handleNotification() was called
-                continue
-            
-                #print("Waiting")
-
-    def wait_indications(self, handle):
-
-        self._conn.writeCharacteristic(handle, b'\x02\x00')  #\x01\x00 for indications
-        while True:
-            if self._conn.waitForNotifications(3.0):
-                continue            
-                #print("Waiting")
-
-
-    # def wri_with_hand(self, handle, list):
-    #     for v in list:
-    #         if self._conn == True:
-    #             try:
-    #                 respon = self._conn.writeCharacteristic(handle, v, withResponse=True)                ## python3.*  type(val)=byte
-    #                 print("write:" + str(v) +"to:" + str(handle) + "response: " + respon)
-    #             except BTLEException  as ex:
-    #                 print(ex)
-    #         else:
-    #             self.con_hold()
-    #             try:
-    #                 respon = self._conn.writeCharacteristic(handle, v, withResponse=True)                ## python3.*  type(val)=byte
-    #                 print("write:" + str(v) +"to:" + str(handle) + "response: " + respon)
-    #             except BTLEException  as ex:
-    #                 print(ex)
-    
-    # write value to target device
-
+        return han_list                     # 遍历pher设备handler，防止pcap包不全
 
     def wri_value(self, handle, val):
 
         if type(val) != bytes:
             val = val.encode()
         try:
-            respon = self._conn.writeCharacteristic(handle, val, withResponse=True)                ## python3.*  type(val)=byte
-            logger.info("Write: {} to: {}  response: {}".format(str(val),str(handle),respon))
+            respon = self._conn.writeCharacteristic(handle, val, withResponse=True)                  ## python3.*  type(val)=byte
+            logger.error("Write: {} to: {}  response: {}".format(str(val),str(handle),respon))       # 监听返回值
+            self._conn.waitForNotifications(2.0)                                                     # 监听notify
         except BTLEException  as ex:
-            logger.error("GATT write error: {}".format(str(ex)))
+            logger.info("GATT write no response.")                                                  
 
-        # else:
-        #     self.con_hold()
-        #     try:
-        #         respon = self._conn.writeCharacteristic(handle, val, withResponse=True)                ## python3.*  type(val)=byte
-        #         logger.info("Write: {} to: {}  response: {}".format(str(val),str(handle),respon))
-        #     except BTLEException  as ex:
-        #         logger.error("GATT write error: {}".format(str(ex)))
+    def open_notify(self):
+        wriList = {}
+        services = self._conn.getServices()
+        han_list = []
+        for svc in services:
+            characteristics = svc.getCharacteristics()
+            for charac in characteristics:
+                uu = charac.uuid
+                Properties = charac.propertiesToString()
 
+                # listen NOTIFY
+                if Properties.find('NOTIFY'):
+                    handle = charac.getHandle()
+                    try:
+                        self._conn.writeCharacteristic(handle, b'\x01\x00')  #\x01\x00 for notify
+                    except BTLEException:
+                        logger.warning("Open handle :{} notification error.".format(str(handle)))
+                        continue
+                # listen INDICATE
+                if Properties.find('INDICATE'):
+                    handle = charac.getHandle()
+                    try:
+                        self._conn.writeCharacteristic(handle, b'\x02\x00')
+                        # handl = charac.getHandle()
+                        # indicate = threading.Thread(target=self.wait_indications, name=str(handl), args=(handl, ))
+                        # indicate.start()                   
+                    except BTLEException:
+                        # print(uu + "notify failed!!")
+                        logger.warning("Open handle :{} INDICATE error.".format(str(handle)))
+                        continue
 
     def write_to_csv(self, after_Muta_dic):
 
@@ -246,7 +218,7 @@ class BLEControl():
                 vlist = after_Muta_dic[handle]
 
                 for k in range(len(vlist)):
-                    # TODO 在每次写之前进行状态判断
+                    # 每次写之前进行状态判断
                     
                     if self._conn == True:
                         self.wri_value(handle, vlist(k))               
@@ -275,7 +247,8 @@ class BLEControl():
     #         print(ex)
 
 
-tar_mac = "FB:65:D4:C2:BE:5A"
+# tar_mac = "FB:65:D4:C2:BE:5A" # 全自动门锁
+tar_mac = "44:27:F3:37:E1:13"
 ble = BLEControl()                 
 ble.tar_con(tar_mac.lower())
 bulepy_handles = ble.print_char()
