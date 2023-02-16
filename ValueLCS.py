@@ -300,7 +300,7 @@ class ValueLCS():
                 self.find_lcseque(handle, valu[0], valu[0])                        # 使用变异后的{handle：[v1,v2]}填充字典
             elif len(valu) == 0:                                                   # 处理pcap包中没有的handle fuzz
                 # print("fuzz pcap中没有的handle")                                    
-                self.var_no_pcap(handle)
+                self.pro_a_hand(handle)
             else:
                 for i in range(len(valu)):
                     for j in range(len(valu)):
@@ -308,7 +308,7 @@ class ValueLCS():
                             print('-'*60)
                             self.find_lcseque(handle, valu[i],valu[j])   
         
-        print('#'*30+"变异完成"+'#'*30)
+        logger.info("--变异完成--")
         return self.Muta_dic                                                        # 返回变异后字典          
 
 
@@ -375,10 +375,17 @@ class ValueLCS():
         return reduce(myfunc, lists)
 
 
-    def var_no_pcap(self, handle):
-        
+
+    def var_no_pcap(self, handlelist):
+        for handle in handlelist:
+            after_strs = self.string_mutator.bad_strs_list() + self.string_mutator.get_pyload_mutation(2) + self.string_mutator.get_pyload_mutation(4) + self.string_mutator.get_pyload_mutation(6) + self.string_mutator.get_pyload_mutation(8) + self.string_mutator.get_pyload_mutation(10) + self.string_mutator.get_pyload_mutation(12) + self.string_mutator.get_pyload_mutation(20)
+            self.Muta_dic[handle] = after_strs
+        return self.Muta_dic
+    
+    def pro_a_hand(self, hand):
         after_strs = self.string_mutator.bad_strs_list() + self.string_mutator.get_pyload_mutation(2) + self.string_mutator.get_pyload_mutation(4) + self.string_mutator.get_pyload_mutation(6) + self.string_mutator.get_pyload_mutation(8) + self.string_mutator.get_pyload_mutation(10) + self.string_mutator.get_pyload_mutation(12) + self.string_mutator.get_pyload_mutation(20)
         self.Muta_dic[handle] = after_strs
+
 
     # def wri_handle(self, mac, val, hand):
     #     conn = Peripheral(mac)

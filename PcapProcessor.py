@@ -20,7 +20,38 @@ class PcapProcessor():
         self.write_handler_list = []
         self.pcap_path = pcap_path
     
+    # def pcap_pro
 
+    # 适用于解析手机抓到的hci log
+    def att_data(self):
+        handles = []
+        hwdata = {}
+        packets =  rdpcap(self.pcap_path)
+        for packet in packets: 
+            # print(packet)
+            try:
+                if "ATT header" in packet:
+                    # print("发现 ATT header")
+                    opcode = packet["ATT header"].opcode
+                    if opcode == 0x52:
+                        hand = hex(packet["ATT header"]["Write Request"].gatt_handle)
+                        data = packet["ATT header"]["Write Request"].data
+                        print("data type:", str(data))
+                        if hand not in hwdata.keys():
+                            handles.append(hand)
+                            hwdata[hand] = [data]           #{handle:value}
+                        else:
+                            if data not in hwdata[hand]:                 #去重
+                                hwdata[hand].append(data)
+            except Exception as e:
+                logger.warning(e)
+                continue
+
+        # print(handles)
+        # print(hwdata)
+        return handles, hwdata              
+
+    # 适用于解析dongle抓的空中包
     def process_pcap(self):
         packets =  rdpcap(self.pcap_path)
         for packet in packets: 
@@ -47,9 +78,7 @@ class PcapProcessor():
             # logger.error('[-] error attr_prot')
             return
 
-
         opcode = unpack('<b', attr_prot[0:1])[0]
-
 
         # print("opcode:", opcode.hex())
         if opcode == 0x52:     #write command 0x52
@@ -60,7 +89,7 @@ class PcapProcessor():
             value_hex = value.hex()
             
             if handler not in self.handWvalue.keys():
-                self.write_handler_list.append(value_hex)
+                self.write_handler_list.append(handler)
                 # val = []
                 # val.append(value_hex)
                 self.handWvalue[handler] = [value_hex]           #{handle:value}
@@ -77,8 +106,9 @@ class PcapProcessor():
 
 
 if __name__ == '__main__':
-    pcap_path = './sum.pcap'
+    pcap_path = './dump.pcap'
     pcap_processor = PcapProcessor(pcap_path)
-    hand, val = pcap_processor.process_pcap()
+    # hand, val = pcap_processor.process_pcap()
+    hand, val = pcap_processor.att_data()
     print(hand)
     print(val)

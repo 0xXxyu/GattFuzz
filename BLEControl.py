@@ -29,46 +29,56 @@ class BLEControl():
  
     # connect to target mac
     def tar_con(self, tar_mac):
-        scanner = Scanner()
-        devices = scanner.scan(timeout=10)
+        find_flag = False
         logger.info("Begin sacn")
-        logger.info("发现 %d 个设备", len(devices))
         n = 1
-        for dev in devices:    
-            if dev.addr==tar_mac:
-                logger.info("Find target device::"+ tar_mac)
-                # logger.info("\n")
-                # logger.info("               ---------广播信息------------             ")
-                # logger.info("\n")
-                # for (adtype, desc, value) in dev.getScanData():
-                #     logger.info("%s = %s" % (desc, value))
-                # logger.info("\n")
-                # logger.info("               ---------广播信息------------             ")
-                for i in range(0,5):
-                    # logger.info("i = %d ", i)
-                    try: 
-                        logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
-                        self._conn = Peripheral(dev.addr, dev.addrType)
-                        break
-                    except:
-                        if i<4:
-                            continue
-                        else:
-                            logger.info('\n')
-                            logger.error("The device connection failed, check the device status or previous pyload and try again.")
+
+        for _ in range(15):  
+            scanner = Scanner()
+            devices = scanner.scan(timeout=10)
+            # logger.info("发现 %d 个设备", len(devices))          
+            for dev in devices:    
+                if dev.addr==tar_mac:
+                    find_flag = True
+                    logger.info("Find target device::"+ tar_mac)
+                    # logger.info("\n")
+                    logger.info("               ---------广播信息------------             ")
+                    logger.info("\n")
+                    for (adtype, desc, value) in dev.getScanData():
+                        logger.info("%s = %s" % (desc, value))
+                    logger.info("\n")
+                    logger.info("               ---------广播信息------------             ")
+                    for i in range(0,5):
+                        # logger.info("i = %d ", i)
+                        try: 
+                            logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
+                            self._conn = Peripheral(dev.addr, dev.addrType)
                             break
-                if self._conn:
-                    self._mac = tar_mac
-                    self._conn.setDelegate(ReceiveDelegate())
-                    self._conn.setMTU(500)
-                    # self.print_char()
-            else: 
-                if n < len(devices):
-                    n = n+1
-                    continue
-                else:
-                    logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
-                    break       
+                        except:
+                            if i<4:
+                                continue
+                            else:
+                                logger.info('\n')
+                                logger.error("The device connection failed, check the device status or previous pyload and try again.")
+                                # sys.exit()
+                    if self._conn:
+                        self._mac = tar_mac
+                        self._conn.setDelegate(ReceiveDelegate())
+                        self._conn.setMTU(500)
+                        # self.print_char()
+                    
+                    break
+                
+                
+            if not find_flag:  
+                logger.error("The target device was not found, please confirm the device status and try again.")  
+                # else: 
+                #     if n < len(devices):
+                #         n = n+1
+                #         continue
+                #     else:
+                #         logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
+                #         break       
 
 
         # print(" Begin scan:")
@@ -97,24 +107,22 @@ class BLEControl():
         han_list = []
         for svc in services:
             print("[+]        Service: ", svc.uuid)
-            characteristics = svc.getCharacteristics()
+            for n in range(0,5):
+                try:
+                    characteristics = svc.getCharacteristics()
+                    break
+                except:
+                    if n < 5:
+                        continue
+                    else:
+                        logger.warning("Service {} char get error.")
+                        continue
             for charac in characteristics:
                 uu = charac.uuid
                 Properties = charac.propertiesToString()
                 print("    Characteristic: ", uu)
                 print("        Properties: ", Properties)
                 print("            handle: ", charac.getHandle())
-
-                #read
-                if charac.supportsRead():
-                    try:
-                        value = charac.read()
-                        print("             Value: ", value)
-                        print("           charac: ", charac)
-                    except BTLEException:
-                        # print(uu+" read failed!!")
-                        continue 
-
             
                 # listen notification
                 #     try:
@@ -132,16 +140,19 @@ class BLEControl():
                 #         indicate.start()                   
                 #     except BTLEException:
                 #         # print(uu + "notify failed!!")
-                #         continu
+                #         continue
 
                 # write
-                if 'WRITE' in Properties:
+
+                # print(Properties)
+                if 'WRITE' in Properties.replace(" ",""):
+                    # print("write dadian")
                     han = charac.getHandle()
                     wriList[svc.uuid]= uu                   #保存service uuid和characteristic uuid 
                     if han not in han_list:      
                         han_list.append(han)
 
-                if Properties.find('NOTIFY'):
+                if str(Properties).find('NOTIFY'):
                     handle = charac.getHandle()
                     try:
                         self._conn.writeCharacteristic(handle, b'\x01\x00')  #\x01\x00 for notify
@@ -149,7 +160,7 @@ class BLEControl():
                         logger.warning("Open handle :{} notification error.".format(str(handle)))
                         continue
                 # listen INDICATE
-                if Properties.find('INDICATE'):
+                if str(Properties).find('INDICATE'):
                     handle = charac.getHandle()
                     try:
                         self._conn.writeCharacteristic(handle, b'\x02\x00')
@@ -160,6 +171,18 @@ class BLEControl():
                         # print(uu + "notify failed!!")
                         logger.warning("Open handle :{} INDICATE error.".format(str(handle)))
                         continue
+                
+                # 很神奇，read操作会影响write属性的判断
+                # read
+                if charac.supportsRead():
+                    try:
+                        value = charac.read()
+                        print("             Value: ", value)
+                        print("            charac: ", charac)
+                    except BTLEException:
+                        # print(uu+" read failed!!")
+                        continue 
+
                 
             print(60*'-')
         self._conn.disconnect()
@@ -179,9 +202,17 @@ class BLEControl():
     def open_notify(self):
         wriList = {}
         services = self._conn.getServices()
-        han_list = []
         for svc in services:
-            characteristics = svc.getCharacteristics()
+            for n in range(0,5):
+                try:
+                    characteristics = svc.getCharacteristics()
+                    break
+                except:
+                    if n < 5:
+                        continue
+                    else:
+                        logger.warning("Service {} char get error.")
+                        continue
             for charac in characteristics:
                 uu = charac.uuid
                 Properties = charac.propertiesToString()
@@ -232,7 +263,8 @@ class BLEControl():
                     else:
                         # 1. 扫描是否广播； 2. 扫描是否可连接   
                         if k != 0:
-                            logger.error("Check handle:{},     pyload: {}".format(str(handle), str(vlist(k-1))))
+                            # logger.error("Check handle:{},     pyload: {}".format(str(handle), str(vlist(k-1))))
+                            logger.error("write error")
                             self.con_hold()
                                                            
 
