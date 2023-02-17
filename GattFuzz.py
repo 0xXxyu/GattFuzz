@@ -68,7 +68,7 @@ def fuzz_without_pcap(tar_mac):
     ble = BLEControl()
     ble.tar_con(tar_mac)
     handles = ble.print_char()
-    logger.info(handles)
+    print("handles:", handles)
 
     # 随机变异十次
     # n = 0
@@ -76,9 +76,10 @@ def fuzz_without_pcap(tar_mac):
     logger.info("--开始随机变异--")
     after_dic = val.var_no_pcap(handles)   # 一次变异
     logger.info("--随机变异结束--")
-    print(after_dic)
+    # print("after_dic:", after_dic)
 
-    time.sleep(3.0)
+    time.sleep(10.0)
+    print(ble._conn)
     logger.info("--开始变异结果写入--")
     # ble.tar_con(tar_mac)
     ble.write_to_csv(after_dic)
@@ -98,4 +99,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -29,57 +29,98 @@ class BLEControl():
  
     # connect to target mac
     def tar_con(self, tar_mac):
-        find_flag = False
         logger.info("Begin sacn")
         n = 1
-
-        for _ in range(15):  
-            scanner = Scanner()
-            devices = scanner.scan(timeout=10)
-            # logger.info("发现 %d 个设备", len(devices))          
-            for dev in devices:    
-                if dev.addr==tar_mac:
-                    find_flag = True
-                    logger.info("Find target device::"+ tar_mac)
-                    # logger.info("\n")
-                    logger.info("               ---------广播信息------------             ")
-                    logger.info("\n")
-                    for (adtype, desc, value) in dev.getScanData():
-                        logger.info("%s = %s" % (desc, value))
-                    logger.info("\n")
-                    logger.info("               ---------广播信息------------             ")
-                    for i in range(0,5):
-                        # logger.info("i = %d ", i)
-                        try: 
-                            logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
-                            self._conn = Peripheral(dev.addr, dev.addrType)
-                            break
-                        except:
-                            if i<4:
-                                continue
-                            else:
-                                logger.info('\n')
-                                logger.error("The device connection failed, check the device status or previous pyload and try again.")
-                                # sys.exit()
-                    if self._conn:
-                        self._mac = tar_mac
-                        self._conn.setDelegate(ReceiveDelegate())
-                        self._conn.setMTU(500)
-                        # self.print_char()
+        scanner = Scanner()
+        devices = scanner.scan(timeout=10)
+        # logger.info("发现 %d 个设备", len(devices))          
+        for dev in devices:    
+            if dev.addr==tar_mac:
+                logger.info("Find target device::"+ tar_mac)
+                # logger.info("\n")
+                logger.info("              ————————————广播信息————————————                    ")
+                logger.info("|                                                      |")
+                for (adtype, desc, value) in dev.getScanData():
+                    logger.info("    %s = %s" % (desc, value))
+                logger.info("|                                                      |")
+                logger.info("              ————————————广播信息————————————                    ")
+                for i in range(0,10):
+                    # logger.info("i = %d ", i)
+                    try: 
+                        logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
+                        self._conn = Peripheral(dev.addr, dev.addrType)
+                        break
+                    except:
+                        if i<10:
+                            continue
+                        else:
+                            logger.info('\n')
+                            logger.error("The device connection failed, check the device status or previous pyload and try again.")
+                            # sys.exit()
+                if self._conn:
+                    self._mac = tar_mac
+                    self._conn.setDelegate(ReceiveDelegate())
+                    self._conn.setMTU(500)
+                    # self.print_char()
+                
+                else: 
+                    if n < len(devices):
+                        n = n+1
+                        continue
+                    else:
+                        logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
+                        break      
+        
+        # find_flag = False
+        # logger.info("Begin sacn")
+        # n = 1
+        # for _ in range(15):  
+        #     scanner = Scanner()
+        #     devices = scanner.scan(timeout=10)
+        #     # logger.info("发现 %d 个设备", len(devices))          
+        #     for dev in devices:    
+        #         if dev.addr==tar_mac:
+        #             find_flag = True
+        #             logger.info("Find target device::"+ tar_mac)
+        #             # logger.info("\n")
+        #             logger.info("              ————————————广播信息————————————                    ")
+        #             logger.info("|                                                      |")
+        #             for (adtype, desc, value) in dev.getScanData():
+        #                 logger.info("    %s = %s" % (desc, value))
+        #             logger.info("|                                                      |")
+        #             logger.info("              ————————————广播信息————————————                    ")
+        #             for i in range(0,5):
+        #                 # logger.info("i = %d ", i)
+        #                 try: 
+        #                     logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
+        #                     self._conn = Peripheral(dev.addr, dev.addrType)
+        #                     break
+        #                 except:
+        #                     if i<4:
+        #                         continue
+        #                     else:
+        #                         logger.info('\n')
+        #                         logger.error("The device connection failed, check the device status or previous pyload and try again.")
+        #                         # sys.exit()
+        #             if self._conn:
+        #                 self._mac = tar_mac
+        #                 self._conn.setDelegate(ReceiveDelegate())
+        #                 self._conn.setMTU(500)
+        #                 # self.print_char()
                     
-                    break
-                
-                
-            if not find_flag:  
-                logger.error("The target device was not found, please confirm the device status and try again.")  
-                # else: 
-                #     if n < len(devices):
-                #         n = n+1
-                #         continue
-                #     else:
-                #         logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
-                #         break       
+        #             break
+        #         # else: 
+        #         #     if n < len(devices):
+        #         #         n = n+1
+        #         #         continue
+        #         #     else:
+        #         #         logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
+        #         #         break       
 
+                
+        #     if not find_flag:  
+        #         logger.error("The target device was not found, please confirm the device status and try again.")  
+        #         # 
 
         # print(" Begin scan:")
         # scanner = Scanner()
@@ -107,12 +148,12 @@ class BLEControl():
         han_list = []
         for svc in services:
             print("[+]        Service: ", svc.uuid)
-            for n in range(0,5):
+            for n in range(0,10):
                 try:
                     characteristics = svc.getCharacteristics()
                     break
                 except:
-                    if n < 5:
+                    if n < 10:
                         continue
                     else:
                         logger.warning("Service {} char get error.")
@@ -185,7 +226,7 @@ class BLEControl():
 
                 
             print(60*'-')
-        self._conn.disconnect()
+        # self._conn.disconnect()
         return han_list                     # 遍历pher设备handler，防止pcap包不全
 
     def wri_value(self, handle, val):
@@ -251,12 +292,16 @@ class BLEControl():
                 for k in range(len(vlist)):
                     # 每次写之前进行状态判断
                     
-                    if self._conn == True:
-                        self.wri_value(handle, vlist(k))               
-                        logger.info("Write value:{} to handle: {}".format(str(vlist(k)),str(handle)))
+                    if self._conn:
+                        print("handle", handle)
+
+                        # print(vlist(k))
+                        # print("vlist(k) type", type(vlist(k)))
+                        self.wri_value(handle, vlist[k])               
+                        logger.info("Write value:{} to handle: {}".format(str(vlist[k]),str(handle)))
                         #k = k.decode(encoding="utf-8").replace('|', '')
                         try:
-                            csv_doc.writerow(vlist(k))
+                            csv_doc.writerow(vlist[k])
                         except:
                             # 部分bad strings写入csv会报错，这里先忽略，所以最终的csv文件可能会不全
                             continue
@@ -280,7 +325,7 @@ class BLEControl():
 
 
 # tar_mac = "FB:65:D4:C2:BE:5A" # 全自动门锁
-tar_mac = "44:27:F3:37:E1:13"
-ble = BLEControl()                 
-ble.tar_con(tar_mac.lower())
-bulepy_handles = ble.print_char()
+# tar_mac = "44:27:F3:37:E1:13"
+# ble = BLEControl()                 
+# ble.tar_con(tar_mac.lower())
+# bulepy_handles = ble.print_char()
