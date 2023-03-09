@@ -58,7 +58,7 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     # TODO add thread
     
     # logger.info(after_Muta_dic)
-    ble.tar_con(tar_mac)
+    # ble.tar_con(tar_mac)
     # # TODO +判断连接状态
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
 

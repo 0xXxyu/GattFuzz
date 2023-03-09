@@ -282,36 +282,34 @@ class BLEControl():
     def write_to_csv(self, after_Muta_dic):
 
         for handle in after_Muta_dic.keys():
-            self.path = './'+ str(handle) +'.csv'                               #把变异数据写入./fuzz_data.csv 
+            # self.path = './'+ str(handle) +'.csv'                               #把变异数据写入./fuzz_data.csv 
             
-            with open(self.path, 'w+', newline='') as f:
-                csv_doc = csv.writer(f)
 
-                vlist = after_Muta_dic[handle]
+            # with open(self.path, 'w+', newline='') as f:
+            #     csv_doc = csv.writer(f)
 
-                for k in range(len(vlist)):
-                    # 每次写之前进行状态判断
-                    
-                    if self._conn:
-                        logger.info("连接中")
+            vlist = after_Muta_dic[handle]
 
-                        # print(vlist(k))
-                        # print("vlist(k) type", type(vlist(k)))
-                        self.wri_value(handle, vlist[k])               
-                        logger.info("Write value:{} to handle: {}".format(str(vlist[k]),str(handle)))
-                        #k = k.decode(encoding="utf-8").replace('|', '')
-                        try:
-                            csv_doc.writerow(vlist[k])
-                        except:
-                            # 部分bad strings写入csv会报错，这里先忽略，所以最终的csv文件可能会不全
-                            continue
-                    else:
-                        logger.info("连接断开，尝试重连")
-                        # 1. 扫描是否广播； 2. 扫描是否可连接   
-                        if k != 0:
-                            # logger.error("Check handle:{},     pyload: {}".format(str(handle), str(vlist(k-1))))
-                            logger.error("write error")
-                            self.con_hold()
+            for k in range(len(vlist)):
+                # 每次写之前进行状态判断
+                
+                if self._conn:
+                    logger.info("连接中")
+                    self.wri_value(handle, vlist[k])               
+                    logger.info("Write value:{} to handle: {}".format(str(vlist[k]),str(handle)))
+                    #k = k.decode(encoding="utf-8").replace('|', '')
+                    # try:
+                    #     csv_doc.writerow(vlist[k])
+                    # except:
+                    #     # 部分bad strings写入csv会报错，这里先忽略，所以最终的csv文件可能会不全
+                    #     continue
+                else:
+                    logger.info("连接断开，尝试重连")
+                    # 1. 扫描是否广播； 2. 扫描是否可连接   
+                    if k != 0:
+                        # logger.error("Check handle:{},     pyload: {}".format(str(handle), str(vlist(k-1))))
+                        logger.error("write error")
+                        self.con_hold()
                                                            
 
     # def wri_handle(self, mac, val, hand):
