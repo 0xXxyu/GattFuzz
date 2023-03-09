@@ -34,9 +34,10 @@ class PcapProcessor():
                     # print("发现 ATT header")
                     opcode = packet["ATT header"].opcode
                     if opcode == 0x52:
-                        hand = hex(packet["ATT header"]["Write Request"].gatt_handle)
+                        # hand = hex(packet["ATT header"]["Write Request"].gatt_handle)
+                        hand = packet["ATT header"]["Write Request"].gatt_handle
                         data = packet["ATT header"]["Write Request"].data
-                        print("data type:", str(data))
+                        # print("data type:", str(data))
                         if hand not in hwdata.keys():
                             handles.append(hand)
                             hwdata[hand] = [data]           #{handle:value}
@@ -51,7 +52,7 @@ class PcapProcessor():
         # print(hwdata)
         return handles, hwdata              
 
-    # 适用于解析dongle抓的空中包
+    # 适用于解析空中包
     def process_pcap(self):
         packets =  rdpcap(self.pcap_path)
         for packet in packets: 
@@ -106,7 +107,7 @@ class PcapProcessor():
 
 
 if __name__ == '__main__':
-    pcap_path = './dump.pcap'
+    pcap_path = './test.pcap'
     pcap_processor = PcapProcessor(pcap_path)
     # hand, val = pcap_processor.process_pcap()
     hand, val = pcap_processor.att_data()

@@ -31,7 +31,8 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     pcap_handles = []
     han_val_dic = {}
 
-    pcap_handles, han_val_dic = pcap_processor.process_pcap()          # 返回handle列表和{handle：[value]}字典
+    # pcap_handles, han_val_dic = pcap_processor.process_pcap()          # 返回handle列表和{handle：[value]}字典
+    pcap_handles, han_val_dic = pcap_processor.att_data()
     logger.info("--处理pcap文件结束--")
     # print("pcap handles:", pcap_handles)                # pcap中的handles
     print("all_value:", han_val_dic)
@@ -53,11 +54,11 @@ def fuzz_with_pcap(pcap_path,tar_mac):
             latest_dic[handle] = han_val_dic[handle]
     print("latest pcap dic:", latest_dic)
     
-    # logger.info("--开始变异--")
-    # after_Muta_dic = val.pro_dict(latest_dic)              # 进行规则标记、变异，返回变异后字典
+    logger.info("--开始变异--")
+    after_Muta_dic = val.pro_dict(latest_dic)              # 进行规则标记、变异，返回变异后字典
     # # TODO add thread
     
-    # # logger.info(after_Muta_dic)
+    logger.info(after_Muta_dic)
     # ble.tar_con(tar_mac)
     # # TODO +判断连接状态
     # ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
