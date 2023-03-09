@@ -5,7 +5,7 @@ from scapy.all import *
 import argparse
 
 from Logger import Logger
-logger = Logger(loggername='Main').get_logger()
+# Logger = Logger(loggername='Main').get_logger()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--file', help='input pcap file',required=False)
@@ -25,39 +25,39 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     
     latest_dic = {}
     #提取数据包 static          
-    logger.info("--开始处理pcap文件--")
+    Logger.info("--开始处理pcap文件--")
     pcap_processor = PcapProcessor(pcap_path)
 
     pcap_handles = []
     han_val_dic = {}
 
     pcap_handles, han_val_dic = pcap_processor.process_pcap()          # 返回handle列表和{handle：[value]}字典
-    logger.info("--处理pcap文件结束--")
+    Logger.info("--处理pcap文件结束--")
     # print("pcap handles:", pcap_handles)                # pcap中的handles
-    print("all_value:", han_val_dic)
+    # print("all_value:", han_val_dic)
                                       
 
-    # connect device and logger.info chars
-    # logger.info("#"*30+ "设备扫描"+ '#'*30)
+    # connect device and Logger.info chars
+    # Logger.info("#"*30+ "设备扫描"+ '#'*30)
     ble = BLEControl()                 
     ble.tar_con(tar_mac)
     bulepy_handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
-    logger.info("bluepy handles:{}".format(str(bulepy_handles)))
+    Logger.info("bluepy handles:{}".format(str(bulepy_handles)))
 
     # 存在部分handle不通信的情况，pcap中没有数据，补充这部分
     for handle in bulepy_handles:
-        # logger.info("handle:{}".format(str(handle))
+        # Logger.info("handle:{}".format(str(handle))
         if handle not in pcap_handles:
             latest_dic[handle] = []
         else:
             latest_dic[handle] = han_val_dic[handle]
-    print("latest pcap dic:", latest_dic)
+    # print("latest pcap dic:", latest_dic)
     
-    # logger.info("--开始变异--")
+    # Logger.info("--开始变异--")
     # after_Muta_dic = val.pro_dict(latest_dic)              # 进行规则标记、变异，返回变异后字典
     # # TODO add thread
     
-    # # logger.info(after_Muta_dic)
+    # # Logger.info(after_Muta_dic)
     # ble.tar_con(tar_mac)
     # # TODO +判断连接状态
     # ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
@@ -68,22 +68,25 @@ def fuzz_without_pcap(tar_mac):
     ble = BLEControl()
     ble.tar_con(tar_mac)
     handles = ble.print_char()
-    print("handles:", handles)
+    # print("handles:", handles)
 
     # 随机变异十次
-    # n = 0
-    # while n<10:
-    logger.info("--开始随机变异--")
-    after_dic = val.var_no_pcap(handles)   # 一次变异
-    logger.info("--随机变异结束--")
-    # print("after_dic:", after_dic)
+    n = 0
+    after_dic = {}
+    while n<100:
+        Logger.info("--开始随机变异--")
+        after_dic = val.var_no_pcap(handles)   # 一次变异
+        Logger.info("--随机变异结束--")
+        # print("after_dic:", after_dic)
+        n += 1
 
-    time.sleep(10.0)
-    print(ble._conn)
-    logger.info("--开始变异结果写入--")
-    # ble.tar_con(tar_mac)
-    ble.write_to_csv(after_dic)
-    logger.info("--一次Fuzz结束--")
+        time.sleep(10.0)
+        print(ble._conn)
+        Logger.info("--开始变异结果写入--")
+        # ble.tar_con(tar_mac)
+        ble.write_to_csv(after_dic)
+        Logger.info("--一次Fuzz结束--")
+    
 
 def main():
     args = parser.parse_args()
@@ -95,7 +98,7 @@ def main():
     else:
         fuzz_with_pcap(pcap_path, target_mac.lower())
     # except Exception as e:
-    #     logger.error('[-] fuzz error : {}'.format(e))
+    #     Logger.error('[-] fuzz error : {}'.format(e))
 
 if __name__ == '__main__':
     main()

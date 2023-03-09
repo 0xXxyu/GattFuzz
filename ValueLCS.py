@@ -6,7 +6,7 @@ import time
 from StringMutator import StringMutator
 
 from Logger import Logger
-logger = Logger(loggername='Value_LCS').get_logger()
+# Logger = Logger(loggername='Value_LCS').get_logger()
 
 '''
 接收pcap字典，value列表逐个比较，给出变异字段
@@ -33,7 +33,7 @@ class ValueLCS():
         : eg: ['12', '++', '++', '##', '++', '++', '++', '++', '++', '++']
         """
         if len(str1) != len(str2):
-            logger.warning('输入字符串长度不等: len(str1):{}\tlen(str2):{}'.format(len(str1), len(str2)))
+            Logger.warning('输入字符串长度不等: len(str1):{}\tlen(str2):{}'.format(len(str1), len(str2)))
         
         str_len = len(str1)
 
@@ -133,8 +133,8 @@ class ValueLCS():
         for i in mutation_data_dic:
             print('--------------------')
             mutation_data = mutation_data_dic[i]
-            # logger.info(len(mutation_data))
-            # logger.info(mutation_data)
+            # Logger.info(len(mutation_data))
+            # Logger.info(mutation_data)
         return mutation_data_dic
 
 
@@ -164,7 +164,7 @@ class ValueLCS():
         ly_count = 0                        # pyload计数位
         #标记static
         for i in range(len(str1_splited_list)):
-            # logger.info("处理位：{}".format(s01[i]))
+            # Logger.info("处理位：{}".format(s01[i]))
             hex0 = abs(int(str1_splited_list[i], 16) - int(str2_splited_list[i], 16))
 
             if len(str1_splited_list) == 1:
@@ -235,13 +235,13 @@ class ValueLCS():
         # print(self._simple_list)
 
         # print("value_lcs:", handle)
-        # logger.info(str)
+        # Logger.info(str)
         print('===============')
         for i in mutation_data_dic:
             print('--------------------')
             var_data = mutation_data_dic[i]
-            # logger.info(len(var_data))
-            # logger.info(var_data)
+            # Logger.info(len(var_data))
+            # Logger.info(var_data)
         self.write_value(handle, mutation_data_dic)              
         '''
         # 生成字符串长度加1的0矩阵，m用来保存对应位置匹配的结果
@@ -308,7 +308,7 @@ class ValueLCS():
                             print('-'*60)
                             self.find_lcseque(handle, valu[i],valu[j])   
         
-        logger.info("--变异完成--")
+        Logger.info("--变异完成--")
         return self.Muta_dic                                                        # 返回变异后字典          
 
 
@@ -333,7 +333,7 @@ class ValueLCS():
             self.Muta_dic[handle] = after_var_value      #   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
         else:
             self.Muta_dic[handle] = self.Muta_dic[handle] + after_var_value
-        # logger.info("mula_dic:")
+        # Logger.info("mula_dic:")
 
         # return handle, after_var_value
         # self.write_to_handle(handle, after_var_value)
@@ -406,16 +406,16 @@ class ValueLCS():
 #     val = ValueLCS()
 #     Muta_di = val.pro_dict(test_dic)
 #     print(Muta_di)
-#     # t1_s = time.time()
-#     # val.find_lcseque(11, s1, s2)
-#     # t1_e = time.time()
+    # t1_s = time.time()
+    # val.find_lcseque(11, s1, s2)
+    # t1_e = time.time()
 
-#     # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-#     # t2_s = time.time()
-#     # val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2), s1, s2)
-#     # t2_e = time.time()
+    # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+    # t2_s = time.time()
+    # val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2), s1, s2)
+    # t2_e = time.time()
 
-#     # logger.info(t1_e - t1_s)
-#     # logger.info(t2_e - t2_s)
+    # Logger.info(t1_e - t1_s)
+    # Logger.info(t2_e - t2_s)
 
 

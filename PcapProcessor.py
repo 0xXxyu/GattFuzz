@@ -3,9 +3,9 @@ from re import sub
 from struct import unpack
 from scapy.all import *
 from Logger import Logger
-import matplotlib
-matplotlib.use('Agg')
-logger = Logger(loggername='Pkt_pro').get_logger()
+# import matplotlib
+# matplotlib.use('Agg')
+# Logger = Logger(loggername='Pkt_pro').get_logger()
 '''
 提取pcap中request_command handle和value到字典
 
@@ -44,7 +44,7 @@ class PcapProcessor():
                             if data not in hwdata[hand]:                 #去重
                                 hwdata[hand].append(data)
             except Exception as e:
-                logger.warning(e)
+                Logger.warning(e)
                 continue
 
         # print(handles)
@@ -61,7 +61,7 @@ class PcapProcessor():
                 attr_prot = raw[27 : len(raw) - 3]   
                 self.parse_attr_protocol(attr_prot)
             except Exception as e:
-                logger.warning(e)
+                Logger.warning(e)
                 continue  
         # print(self.write_handler_list)
         # print(self.handWvalue)
@@ -71,11 +71,11 @@ class PcapProcessor():
         
         # opcode = attr_prot[:1]
         
-        # logger.info(opcode)
+        # Logger.info(opcode)
 
         # opcode(1) + handler(2) + value(>=1)
         if len(attr_prot) <= 4:
-            # logger.error('[-] error attr_prot')
+            # Logger.error('[-] error attr_prot')
             return
 
         opcode = unpack('<b', attr_prot[0:1])[0]
@@ -83,7 +83,7 @@ class PcapProcessor():
         # print("opcode:", opcode.hex())
         if opcode == 0x52:     #write command 0x52
             handler = unpack('<h', attr_prot[1:3])[0]
-            # logger.info(handler)
+            # Logger.info(handler)
 
             value = attr_prot[3:]
             value_hex = value.hex()
@@ -105,10 +105,10 @@ class PcapProcessor():
         #return self.wri_handle, self.handWvalue
 
 
-if __name__ == '__main__':
-    pcap_path = './dump.pcap'
-    pcap_processor = PcapProcessor(pcap_path)
-    # hand, val = pcap_processor.process_pcap()
-    hand, val = pcap_processor.att_data()
-    print(hand)
-    print(val)
+# if __name__ == '__main__':
+#     pcap_path = './dump.pcap'
+#     pcap_processor = PcapProcessor(pcap_path)
+#     # hand, val = pcap_processor.process_pcap()
+#     hand, val = pcap_processor.att_data()
+#     print(hand)
+#     print(val)
