@@ -3,8 +3,6 @@ from re import sub
 from struct import unpack
 from scapy.all import *
 from Logger import Logger
-import matplotlib
-matplotlib.use('Agg')
 logger = Logger(loggername='Pkt_pro').get_logger()
 '''
 提取pcap中request_command handle和value到字典
@@ -45,7 +43,7 @@ class PcapProcessor():
                             if data not in hwdata[hand]:                 #去重
                                 hwdata[hand].append(data)
             except Exception as e:
-                logger.warning(e)
+                Logger.info(e)
                 continue
 
         # print(handles)
@@ -106,10 +104,10 @@ class PcapProcessor():
         #return self.wri_handle, self.handWvalue
 
 
-if __name__ == '__main__':
-    pcap_path = './test.pcap'
-    pcap_processor = PcapProcessor(pcap_path)
-    # hand, val = pcap_processor.process_pcap()
-    hand, val = pcap_processor.att_data()
-    print(hand)
-    print(val)
+# if __name__ == '__main__':
+#     pcap_path = './dump.pcap'
+#     pcap_processor = PcapProcessor(pcap_path)
+#     # hand, val = pcap_processor.process_pcap()
+#     hand, val = pcap_processor.att_data()
+#     print(hand)
+#     print(val)

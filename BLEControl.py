@@ -33,7 +33,7 @@ class BLEControl():
         n = 1
         scanner = Scanner()
         devices = scanner.scan(timeout=10)
-        # logger.info("发现 %d 个设备", len(devices))          
+        logger.info("发现 %d 个设备", len(devices))          
         for dev in devices:    
             if dev.addr==tar_mac:
                 logger.info("Find target device::"+ tar_mac)
@@ -293,7 +293,7 @@ class BLEControl():
                     # 每次写之前进行状态判断
                     
                     if self._conn:
-                        print("handle", handle)
+                        logger.info("连接中")
 
                         # print(vlist(k))
                         # print("vlist(k) type", type(vlist(k)))
@@ -306,6 +306,7 @@ class BLEControl():
                             # 部分bad strings写入csv会报错，这里先忽略，所以最终的csv文件可能会不全
                             continue
                     else:
+                        logger.info("连接断开，尝试重连")
                         # 1. 扫描是否广播； 2. 扫描是否可连接   
                         if k != 0:
                             # logger.error("Check handle:{},     pyload: {}".format(str(handle), str(vlist(k-1))))
@@ -324,8 +325,11 @@ class BLEControl():
     #         print(ex)
 
 
-# tar_mac = "FB:65:D4:C2:BE:5A" # 全自动门锁
+# tar_mac = "FB:65:D4:C2:BE:5A" 
 # tar_mac = "44:27:F3:37:E1:13"
+# tar_mac = "60:1d:9d:df:08:90"
+# tar_mac = "46:66:77:A8:3D:9C"
+# tar_mac = "08:EB:29:50:9B:FB"
 # ble = BLEControl()                 
 # ble.tar_con(tar_mac.lower())
 # bulepy_handles = ble.print_char()

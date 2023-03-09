@@ -384,7 +384,7 @@ class ValueLCS():
     
     def pro_a_hand(self, hand):
         after_strs = self.string_mutator.bad_strs_list() + self.string_mutator.get_pyload_mutation(2) + self.string_mutator.get_pyload_mutation(4) + self.string_mutator.get_pyload_mutation(6) + self.string_mutator.get_pyload_mutation(8) + self.string_mutator.get_pyload_mutation(10) + self.string_mutator.get_pyload_mutation(12) + self.string_mutator.get_pyload_mutation(20)
-        self.Muta_dic[handle] = after_strs
+        self.Muta_dic[hand] = after_strs
 
 
     # def wri_handle(self, mac, val, hand):
@@ -406,16 +406,16 @@ class ValueLCS():
 #     val = ValueLCS()
 #     Muta_di = val.pro_dict(test_dic)
 #     print(Muta_di)
-#     # t1_s = time.time()
-#     # val.find_lcseque(11, s1, s2)
-#     # t1_e = time.time()
+    # t1_s = time.time()
+    # val.find_lcseque(11, s1, s2)
+    # t1_e = time.time()
 
-#     # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-#     # t2_s = time.time()
-#     # val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2), s1, s2)
-#     # t2_e = time.time()
+    # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+    # t2_s = time.time()
+    # val.find_lcseque_with_lcs_rule(val.get_lcs_rule(s1, s2), s1, s2)
+    # t2_e = time.time()
 
-#     # logger.info(t1_e - t1_s)
-#     # logger.info(t2_e - t2_s)
+    # logger.info(t1_e - t1_s)
+    # logger.info(t2_e - t2_s)
 
 
