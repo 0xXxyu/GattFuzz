@@ -1,11 +1,11 @@
 # GattFuzz
-GattFuzz 是一款针对BLE的Gatt的模糊测试工具。
+GattFuzz 是一款针对BLE Gatt的模糊测试工具。
 
 ### 环境
 Linux
 
 ### Requirements
-Bluepy、scapy
+Bluepy、Scapy
 
 ### 安装与使用
 #### 方法一
@@ -30,9 +30,9 @@ gattfuzz
 ```
 
 #### 使用
-
+```
 gattfuzz -h
-
+```
 支持两个参数，-f 和 -m，-f为可选。 -m为目标的mac地址。-f 就是你抓取到的pcap包，会根据包提取去进行变异fuzz。如果不指定，则直接遍历目标设备gatt，并进行fuzzing 测试。
 
 
@@ -50,22 +50,5 @@ gattfuzz -h
 
 ### 可能遇到的一些问题
 
-1. 目前支持手机hci log抓的pcap包（需要自己转格式）和抓取的空中包两种pcap包，其他的包解析可能会出问题，但还没遇到，欢迎提issue；
+目前支持手机hci log抓的pcap包（需要自己转格式）和抓取的空中包两种pcap包，其他的包解析出可能欢迎提issue
 
-
-### Update
-
-#### 2023.06.02 update
-1. 更新项目结构，增加setup.py文件，支持安装为python 库。
-
-
-
-#### 2023.2.13 update
-1. 更改部分错误
-
-#### 2023.2.8 update
-1. add new pyload
-2. add device status scan
-
-#### 2022.7.19 update
-abstract functional class
