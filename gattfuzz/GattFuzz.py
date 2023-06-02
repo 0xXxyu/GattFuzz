@@ -1,10 +1,10 @@
-from ValueLCS import ValueLCS
-from PcapProcessor import PcapProcessor
-from BLEControl import BLEControl
+from gattfuzz.lib.ValueLCS import ValueLCS
+from gattfuzz.lib.PcapProcessor import PcapProcessor
+from gattfuzz.lib.BLEControl import BLEControl
 from scapy.all import *
 import argparse
 
-from Logger import Logger
+from gattfuzz.lib.Logger import Logger
 logger = Logger(loggername='Main').get_logger()
 
 parser = argparse.ArgumentParser()
@@ -89,6 +89,16 @@ def fuzz_without_pcap(tar_mac):
     
 
 def main():
+    print("""
+       ###     #     #####   #####   ######
+  #   #    #       #       #     #
+ #        ###      #       #     #       #    #  #####   #####
+ #  ###   # #      #       #     ####    #    #     #       #
+ #    #  #####     #       #     #       #    #    #       #
+  #   #  #   #     #       #     #       #   ##   #       #
+   #### ##   ##    #       #     #        ### #  #####   #####
+
+    """)
     args = parser.parse_args()
     pcap_path = args.file
     target_mac = args.mac
@@ -100,5 +110,3 @@ def main():
     # except Exception as e:
     #     logger.error('[-] fuzz error : {}'.format(e))
 
-if __name__ == '__main__':
-    main()

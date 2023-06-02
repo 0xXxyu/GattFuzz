@@ -3,9 +3,9 @@ import time
 # from distutils.file_util import write_file
 
 #import pandas as pd
-from StringMutator import StringMutator
+from gattfuzz.lib.StringMutator import StringMutator
 
-from Logger import Logger
+from gattfuzz.lib.Logger import Logger
 logger = Logger(loggername='Value_LCS').get_logger()
 
 '''

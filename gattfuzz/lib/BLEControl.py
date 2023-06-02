@@ -6,7 +6,7 @@ from bluepy.btle import Peripheral,UUID,DefaultDelegate,Scanner
 from bluepy.btle import BTLEException
 import _thread
 import time
-from Logger import Logger
+from gattfuzz.lib.Logger import Logger
 logger = Logger(loggername='Gatt_Write').get_logger()
 
 '''

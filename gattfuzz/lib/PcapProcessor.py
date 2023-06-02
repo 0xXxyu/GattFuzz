@@ -2,7 +2,7 @@ import binascii
 from re import sub
 from struct import unpack
 from scapy.all import *
-from Logger import Logger
+from gattfuzz.lib.Logger import Logger
 logger = Logger(loggername='Pkt_pro').get_logger()
 '''
 提取pcap中request_command handle和value到字典
