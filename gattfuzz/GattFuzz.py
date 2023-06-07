@@ -7,9 +7,6 @@ import argparse
 from gattfuzz.lib.Logger import Logger
 logger = Logger(loggername='Main').get_logger()
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-f', '--file', help='input pcap file',required=False)
-parser.add_argument('-m', '--mac', help='mac address of target', required=True)
 
 val = ValueLCS()
 
@@ -99,7 +96,11 @@ def main():
    #### ##   ##    #       #     #        ### #  #####   #####
 
     """)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--file', help='input pcap file',required=False)
+    parser.add_argument('-m', '--mac', help='mac address of target', required=True)
     args = parser.parse_args()
+    
     pcap_path = args.file
     target_mac = args.mac
     # try:

@@ -1,14 +1,16 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fp:
     description = fp.read()
 
 setup(
-    name='GattFuzz',
-    version='0.0.3',
+    name='gattfuzz',
+    version='0.0.4',
     description= "A tool for fuzzing BLE GATT",
     long_description=description,
-    packages=['gattfuzz'],
+    packages=find_packages(),
+    #packages=['gattfuzz'],
+    zip_safe=False,
     install_requires=[
         'bluepy==1.3.0',
         'scapy==2.4.5',
