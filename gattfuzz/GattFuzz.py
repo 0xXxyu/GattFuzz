@@ -3,6 +3,7 @@ from gattfuzz.lib.PcapProcessor import PcapProcessor
 from gattfuzz.lib.BLEControl import BLEControl
 from scapy.all import *
 import argparse
+import time
 
 from gattfuzz.lib.Logger import Logger
 logger = Logger(loggername='Main').get_logger()

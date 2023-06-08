@@ -1,11 +1,8 @@
 from cgitb import enable
-import csv
-import threading
 from bluepy import btle
 from bluepy.btle import Peripheral,UUID,DefaultDelegate,Scanner
 from bluepy.btle import BTLEException
-import _thread
-import time
+
 from gattfuzz.lib.Logger import Logger
 logger = Logger(loggername='Gatt_Write').get_logger()
 
@@ -248,7 +245,9 @@ class BLEControl():
     def open_notify(self):
         wriList = {}
         services = self._conn.getServices()
+        
         for svc in services:
+            characteristics = []
             for n in range(0,5):
                 try:
                     characteristics = svc.getCharacteristics()

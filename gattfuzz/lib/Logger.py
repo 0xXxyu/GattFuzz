@@ -1,6 +1,6 @@
 import logging
 from colorama import Fore,Style
-import sys
+
 
 class Logger():
     def __init__(self, loglevel=logging.INFO, loggername=None):
