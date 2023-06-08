@@ -143,91 +143,96 @@ class BLEControl():
 
     def print_char(self):
         # Get service & characteristic
-        wriList = {}
-        services = self._conn.getServices()
-        han_list = []
-        for svc in services:
-            print("[+]        Service: ", svc.uuid)
-            for n in range(0,10):
-                try:
-                    characteristics = svc.getCharacteristics()
-                    break
-                except:
-                    if n < 10:
-                        continue
-                    else:
-                        logger.warning("Service {} char get error.")
-                        continue
-            for charac in characteristics:
-                uu = charac.uuid
-                Properties = charac.propertiesToString()
-                print("    Characteristic: ", uu)
-                print("        Properties: ", Properties)
-                print("            handle: ", charac.getHandle())
-            
-                # listen notification
-                #     try:
-                #         handl = charac.getHandle()
-                #         notify = threading.Thread(target=self.wait_noti, name=str(handl), args=(handl, ))
-                #         notify.start()                    
-                #     except BTLEException:
-                #         # print(uu + "notify failed!!")
-                #         continue
-
-                # if Properties.find('INDICATE'):
-                #     try:
-                #         handl = charac.getHandle()
-                #         indicate = threading.Thread(target=self.wait_indications, name=str(handl), args=(handl, ))
-                #         indicate.start()                   
-                #     except BTLEException:
-                #         # print(uu + "notify failed!!")
-                #         continue
-
-                # write
-
-                # print(Properties)
-                if 'WRITE' in Properties.replace(" ",""):
-                    # print("write dadian")
-                    han = charac.getHandle()
-                    wriList[svc.uuid]= uu                   #保存service uuid和characteristic uuid 
-                    if han not in han_list:      
-                        han_list.append(han)
-
-                if str(Properties).find('NOTIFY'):
-                    handle = charac.getHandle()
+        if self._conn:
+            wriList = {}
+            services = self._conn.getServices()
+            han_list = []
+            for svc in services:
+                print("[+]        Service: ", svc.uuid)
+                for n in range(0,10):
                     try:
-                        self._conn.writeCharacteristic(handle, b'\x01\x00')  #\x01\x00 for notify
-                    except BTLEException:
-                        logger.warning("Open handle :{} notification error.".format(str(handle)))
-                        continue
-                # listen INDICATE
-                if str(Properties).find('INDICATE'):
-                    handle = charac.getHandle()
-                    try:
-                        self._conn.writeCharacteristic(handle, b'\x02\x00')
-                        # handl = charac.getHandle()
-                        # indicate = threading.Thread(target=self.wait_indications, name=str(handl), args=(handl, ))
-                        # indicate.start()                   
-                    except BTLEException:
-                        # print(uu + "notify failed!!")
-                        logger.warning("Open handle :{} INDICATE error.".format(str(handle)))
-                        continue
+                        characteristics = svc.getCharacteristics()
+                        break
+                    except:
+                        if n < 10:
+                            continue
+                        else:
+                            logger.warning("Service {} char get error.")
+                            continue
+                for charac in characteristics:
+                    uu = charac.uuid
+                    Properties = charac.propertiesToString()
+                    print("    Characteristic: ", uu)
+                    print("        Properties: ", Properties)
+                    print("            handle: ", charac.getHandle())
                 
-                # 很神奇，read操作会影响write属性的判断
-                # read
-                if charac.supportsRead():
-                    try:
-                        value = charac.read()
-                        print("             Value: ", value)
-                        print("            charac: ", charac)
-                    except BTLEException:
-                        # print(uu+" read failed!!")
-                        continue 
+                    # listen notification
+                    #     try:
+                    #         handl = charac.getHandle()
+                    #         notify = threading.Thread(target=self.wait_noti, name=str(handl), args=(handl, ))
+                    #         notify.start()                    
+                    #     except BTLEException:
+                    #         # print(uu + "notify failed!!")
+                    #         continue
 
-                
-            print(60*'-')
-        # self._conn.disconnect()
-        return han_list                     # 遍历pher设备handler，防止pcap包不全
+                    # if Properties.find('INDICATE'):
+                    #     try:
+                    #         handl = charac.getHandle()
+                    #         indicate = threading.Thread(target=self.wait_indications, name=str(handl), args=(handl, ))
+                    #         indicate.start()                   
+                    #     except BTLEException:
+                    #         # print(uu + "notify failed!!")
+                    #         continue
+
+                    # write
+
+                    # print(Properties)
+                    if 'WRITE' in Properties.replace(" ",""):
+                        # print("write dadian")
+                        han = charac.getHandle()
+                        wriList[svc.uuid]= uu                   #保存service uuid和characteristic uuid 
+                        if han not in han_list:      
+                            han_list.append(han)
+
+                    if str(Properties).find('NOTIFY'):
+                        handle = charac.getHandle()
+                        try:
+                            self._conn.writeCharacteristic(handle, b'\x01\x00')  #\x01\x00 for notify
+                        except BTLEException:
+                            logger.warning("Open handle :{} notification error.".format(str(handle)))
+                            continue
+                    # listen INDICATE
+                    if str(Properties).find('INDICATE'):
+                        handle = charac.getHandle()
+                        try:
+                            self._conn.writeCharacteristic(handle, b'\x02\x00')
+                            # handl = charac.getHandle()
+                            # indicate = threading.Thread(target=self.wait_indications, name=str(handl), args=(handl, ))
+                            # indicate.start()                   
+                        except BTLEException:
+                            # print(uu + "notify failed!!")
+                            logger.warning("Open handle :{} INDICATE error.".format(str(handle)))
+                            continue
+                    
+                    # 很神奇，read操作会影响write属性的判断
+                    # read
+                    if charac.supportsRead():
+                        try:
+                            value = charac.read()
+                            print("             Value: ", value)
+                            print("            charac: ", charac)
+                        except BTLEException:
+                            # print(uu+" read failed!!")
+                            continue 
+
+                    
+                print(60*'-')
+            # self._conn.disconnect()
+            return han_list                     # 遍历pher设备handler，防止pcap包不全
+        else:
+            logger.info("连接断开，尝试重连...")
+            self.con_hold()
+            self.print_char()
 
     def wri_value(self, handle, val):
 
