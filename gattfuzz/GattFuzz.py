@@ -3,7 +3,6 @@ from gattfuzz.lib.PcapProcessor import PcapProcessor
 from gattfuzz.lib.BLEControl import BLEControl
 from scapy.all import *
 import argparse
-import time
 
 from gattfuzz.lib.Logger import Logger
 logger = Logger(loggername='Main').get_logger()
@@ -17,7 +16,7 @@ val = ValueLCS()
 基于pcap的变异覆盖率
 
 7.21 一个问题
-多次连接才能连上
+多次连接才能连上g
 '''
 def fuzz_with_pcap(pcap_path,tar_mac):
     
@@ -37,8 +36,8 @@ def fuzz_with_pcap(pcap_path,tar_mac):
 
     # connect device and logger.info chars
     # logger.info("#"*30+ "设备扫描"+ '#'*30)
-    ble = BLEControl()                 
-    ble.tar_con(tar_mac)
+    ble = BLEControl(tar_mac)                 
+    ble.tar_con()
     bulepy_handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
     logger.info("bluepy handles:{}".format(str(bulepy_handles)))
 
@@ -63,8 +62,8 @@ def fuzz_with_pcap(pcap_path,tar_mac):
 def fuzz_without_pcap(tar_mac):
 
     # just write
-    ble = BLEControl()
-    ble.tar_con(tar_mac)
+    ble = BLEControl(tar_mac)
+    ble.tar_con()
     handles = ble.print_char()
     # print("handles:", handles)
 
@@ -79,7 +78,7 @@ def fuzz_without_pcap(tar_mac):
         n += 1
 
         time.sleep(10.0)
-        #print(ble._conn)
+        print(ble._conn)
         logger.info("--开始变异结果写入--")
         # ble.tar_con(tar_mac)
         ble.write_to_csv(after_dic)

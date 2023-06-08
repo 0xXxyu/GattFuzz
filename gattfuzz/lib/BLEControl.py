@@ -24,15 +24,16 @@ class ReceiveDelegate(DefaultDelegate):
 
 class BLEControl():
 
-    def __init__(self, custom_logger=None):
+    def __init__(self, mac, custom_logger=None):
         self._conn = None
+        self._mac = mac
         if custom_logger:
             self.logger = custom_logger
         else:
             self.logger = logger
     
     # connect to target mac
-    def tar_con(self, tar_mac):
+    def tar_con(self):
         logger = self.logger
         logger.info("Begin sacn")
         n = 1
@@ -40,8 +41,8 @@ class BLEControl():
         devices = scanner.scan(timeout=10)
         logger.info("发现 %d 个设备", len(devices))          
         for dev in devices:    
-            if dev.addr==tar_mac:
-                logger.info("Find target device::"+ tar_mac)
+            if dev.addr==self._mac:
+                logger.info("Find target device::"+ self._mac)
                 # logger.info("\n")
                 logger.info("              ————————————广播信息————————————                    ")
                 logger.info("|                                                      |")
@@ -63,7 +64,6 @@ class BLEControl():
                             logger.error("The device connection failed, check the device status or previous pyload and try again.")
                             # sys.exit()
                 if self._conn:
-                    self._mac = tar_mac
                     self._conn.setDelegate(ReceiveDelegate())
                     self._conn.setMTU(500)
                     # self.print_char()
