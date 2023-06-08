@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fp:
 
 setup(
     name='gattfuzz',
-    version='0.0.9',
+    version='0.0.10',
     description= "A tool for fuzzing BLE GATT",
     long_description=description,
     packages=find_packages(),
