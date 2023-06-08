@@ -143,7 +143,7 @@ class BLEControl():
     
     # hold connect            
     def con_hold(self):
-        self.tar_con(self._mac)
+        self.tar_con()
         self.open_notify()       # 打开notify
 
     def print_char(self):
