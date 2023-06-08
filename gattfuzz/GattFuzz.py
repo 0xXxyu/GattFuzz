@@ -79,7 +79,7 @@ def fuzz_without_pcap(tar_mac):
         n += 1
 
         time.sleep(10.0)
-        print(ble._conn)
+        #print(ble._conn)
         logger.info("--开始变异结果写入--")
         # ble.tar_con(tar_mac)
         ble.write_to_csv(after_dic)

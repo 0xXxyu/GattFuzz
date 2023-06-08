@@ -23,9 +23,17 @@ class ReceiveDelegate(DefaultDelegate):
 
 
 class BLEControl():
- 
+
+    def __init__(self, custom_logger=None):
+        self._conn = None
+        if custom_logger:
+            self.logger = custom_logger
+        else:
+            self.logger = logger
+    
     # connect to target mac
     def tar_con(self, tar_mac):
+        logger = self.logger
         logger.info("Begin sacn")
         n = 1
         scanner = Scanner()
@@ -139,6 +147,7 @@ class BLEControl():
         self.open_notify()       # 打开notify
 
     def print_char(self):
+        logger = self.logger
         # Get service & characteristic
         if self._conn:
             wriList = {}
@@ -243,6 +252,7 @@ class BLEControl():
             logger.info("GATT write no response.")                                                  
 
     def open_notify(self):
+        logger = self.logger
         wriList = {}
         services = self._conn.getServices()
         
@@ -284,7 +294,7 @@ class BLEControl():
                         continue
 
     def write_to_csv(self, after_Muta_dic):
-
+        logger = self.logger
         for handle in after_Muta_dic.keys():
             # self.path = './'+ str(handle) +'.csv'                               #把变异数据写入./fuzz_data.csv 
             
