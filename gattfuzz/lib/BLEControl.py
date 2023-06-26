@@ -22,17 +22,26 @@ class ReceiveDelegate(DefaultDelegate):
 
 
 class BLEControl():
- 
+
+    def __init__(self, mac, custom_logger=None):
+        self._conn = None
+        self._mac = mac
+        if custom_logger:
+            self.logger = custom_logger
+        else:
+            self.logger = logger
+    
     # connect to target mac
-    def tar_con(self, tar_mac):
+    def tar_con(self):
+        logger = self.logger
         logger.info("Begin sacn")
         n = 1
         scanner = Scanner()
         devices = scanner.scan(timeout=10)
         logger.info("发现 %d 个设备", len(devices))          
         for dev in devices:    
-            if dev.addr==tar_mac:
-                logger.info("Find target device::"+ tar_mac)
+            if dev.addr==self._mac:
+                logger.info("Find target device::"+ self._mac)
                 # logger.info("\n")
                 logger.info("              ————————————广播信息————————————                    ")
                 logger.info("|                                                      |")
@@ -54,7 +63,6 @@ class BLEControl():
                             logger.error("The device connection failed, check the device status or previous pyload and try again.")
                             # sys.exit()
                 if self._conn:
-                    self._mac = tar_mac
                     self._conn.setDelegate(ReceiveDelegate())
                     self._conn.setMTU(500)
                     # self.print_char()              
@@ -111,6 +119,7 @@ class BLEControl():
         self.open_notify()       # 打开notify
 
     def print_char(self):
+        logger = self.logger
         # Get service & characteristic
         if self._conn:
             wriList = {}
@@ -215,6 +224,7 @@ class BLEControl():
             logger.info("GATT write no response.")                                                  
 
     def open_notify(self):
+        logger = self.logger
         wriList = {}
         services = self._conn.getServices()
         
@@ -256,7 +266,7 @@ class BLEControl():
                         continue
 
     def write_to_csv(self, after_Muta_dic):
-
+        logger = self.logger
         for handle in after_Muta_dic.keys():
             # self.path = './'+ str(handle) +'.csv'                               #把变异数据写入./fuzz_data.csv 
             
