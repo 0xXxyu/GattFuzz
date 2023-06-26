@@ -1,4 +1,4 @@
-from cgitb import enable
+import sys
 from bluepy import btle
 from bluepy.btle import Peripheral,UUID,DefaultDelegate,Scanner
 from bluepy.btle import BTLEException
@@ -19,7 +19,6 @@ class ReceiveDelegate(DefaultDelegate):
     
     def handleNotification(self, cHandle, data):
         logger.error("Recevied handle: {}  nofity  ----> {} ".format(str(cHandle), str(data)))
-
 
 
 class BLEControl():
@@ -58,84 +57,57 @@ class BLEControl():
                     self._mac = tar_mac
                     self._conn.setDelegate(ReceiveDelegate())
                     self._conn.setMTU(500)
-                    # self.print_char()
-                
+                    # self.print_char()              
+            else: 
+                if n < len(devices):
+                    n = n+1
+                    continue
+                else:
+                    logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
+                    sys.exit(0)     
+
+    def con_age(self, tar_mac):
+        logger.info("……reconnecting……")
+        n = 1
+        for _ in range(15):  
+            scanner = Scanner()
+            devices = scanner.scan(timeout=10)
+            # logger.info("发现 %d 个设备", len(devices))               
+            for dev in devices:    
+                if dev.addr==tar_mac:
+                    logger.info("Find target device::"+ tar_mac)
+                    for i in range(0,5):
+                        # logger.info("i = %d ", i)
+                        try: 
+                            # logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
+                            self._conn = Peripheral(dev.addr, dev.addrType)
+                            break
+                        except:
+                            if i<4:
+                                continue
+                            else:
+                                logger.info('\n')
+                                logger.error("The device connection failed, check the device status or previous pyload and try again.")
+                                # sys.exit()
+                    if self._conn:
+                        self._mac = tar_mac
+                        self._conn.setDelegate(ReceiveDelegate())
+                        self._conn.setMTU(500)
+                        # self.print_char()
+                    
+                    break
                 else: 
                     if n < len(devices):
                         n = n+1
                         continue
                     else:
                         logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
-                        break      
-        
-        # find_flag = False
-        # logger.info("Begin sacn")
-        # n = 1
-        # for _ in range(15):  
-        #     scanner = Scanner()
-        #     devices = scanner.scan(timeout=10)
-        #     # logger.info("发现 %d 个设备", len(devices))          
-        #     for dev in devices:    
-        #         if dev.addr==tar_mac:
-        #             find_flag = True
-        #             logger.info("Find target device::"+ tar_mac)
-        #             # logger.info("\n")
-        #             logger.info("              ————————————广播信息————————————                    ")
-        #             logger.info("|                                                      |")
-        #             for (adtype, desc, value) in dev.getScanData():
-        #                 logger.info("    %s = %s" % (desc, value))
-        #             logger.info("|                                                      |")
-        #             logger.info("              ————————————广播信息————————————                    ")
-        #             for i in range(0,5):
-        #                 # logger.info("i = %d ", i)
-        #                 try: 
-        #                     logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
-        #                     self._conn = Peripheral(dev.addr, dev.addrType)
-        #                     break
-        #                 except:
-        #                     if i<4:
-        #                         continue
-        #                     else:
-        #                         logger.info('\n')
-        #                         logger.error("The device connection failed, check the device status or previous pyload and try again.")
-        #                         # sys.exit()
-        #             if self._conn:
-        #                 self._mac = tar_mac
-        #                 self._conn.setDelegate(ReceiveDelegate())
-        #                 self._conn.setMTU(500)
-        #                 # self.print_char()
-                    
-        #             break
-        #         # else: 
-        #         #     if n < len(devices):
-        #         #         n = n+1
-        #         #         continue
-        #         #     else:
-        #         #         logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
-        #         #         break       
-
-                
-        #     if not find_flag:  
-        #         logger.error("The target device was not found, please confirm the device status and try again.")  
-        #         # 
-
-        # print(" Begin scan:")
-        # scanner = Scanner()
-        # devices = scanner.scan(timeout=10)
-        # for dev in devices:
-        #     if dev.addr==tar_mac:
-        #         print("find target device:")
-        #         print(dev)
-        #         print("%-30s %-20s" % (dev.getValueText(9), dev.addr)) 
-        #         self._mac = tar_mac 
-        #         self._conn = Peripheral(dev.addr, dev.addrType )
-        #         self._conn.setDelegate(ReceiveDelegate())
-        #         self._conn.setMTU(500)
+                        sys.exit(0)
 
     
     # hold connect            
     def con_hold(self):
-        self.tar_con(self._mac)
+        self.con_age(self._mac)
         self.open_notify()       # 打开notify
 
     def print_char(self):

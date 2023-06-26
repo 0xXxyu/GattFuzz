@@ -1,5 +1,8 @@
-# GattFuzz
-GattFuzz 是一款针对BLE Gatt的模糊测试工具。
+
+![Gattfuzz logo](./GATTFuzzing.jpg)
+
+# GattFuzzing
+GattFuzzing 是一款针对BLE Gatt的模糊测试工具。
 
 ### 环境
 Linux
