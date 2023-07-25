@@ -1,6 +1,7 @@
 from gattfuzz.lib.ValueLCS import ValueLCS
 from gattfuzz.lib.PcapProcessor import PcapProcessor
 from gattfuzz.lib.BLEControl import BLEControl
+from gattfuzz.lib.StringMutator import StringMutator
 from scapy.all import *
 import argparse
 
@@ -11,15 +12,15 @@ logger = Logger(loggername='Main').get_logger()
 val = ValueLCS()
 
 '''
-2023.2.8 补充 空pyload
+2023.2.8 补充 空payload
 7.21 一个问题（已解决）
 基于pcap的变异覆盖率
 
 7.21 一个问题
 多次连接才能连上g
 '''
-def fuzz_with_pcap(pcap_path,tar_mac):
-    
+def fuzz_with_pcap(pcap_path, tar_mac, strs_list=None):
+
     latest_dic = {}
     #提取数据包 static          
     logger.info("--开始处理pcap文件--")
@@ -33,7 +34,6 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     # print("pcap handles:", pcap_handles)                # pcap中的handles
     # print("all_value:", han_val_dic)
                                       
-
     # connect device and logger.info chars
     # logger.info("#"*30+ "设备扫描"+ '#'*30)
     ble = BLEControl(tar_mac)                 
@@ -51,15 +51,23 @@ def fuzz_with_pcap(pcap_path,tar_mac):
     # print("latest pcap dic:", latest_dic)
     
     logger.info("--开始变异--")
-    after_Muta_dic = val.pro_dict(latest_dic)              # 进行规则标记、变异，返回变异后字典
-    # TODO add thread
+    if strs_list is None:
+        after_Muta_dic = val.pro_dict(latest_dic)              # 进行规则标记、变异，返回变异后字典
+    elif os.path.exists(strs_list) and strs_list.endswitch('.txt'):
+        after_Muta_dic = val.pro_dict(latest_dic, strs_list)
+    else:
+        logger.error("Invalid file name")
     
     # logger.info(after_Muta_dic)
     # ble.tar_con(tar_mac)
     # # TODO +判断连接状态
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
 
-def fuzz_without_pcap(tar_mac):
+
+def fuzz_without_pcap(tar_mac, strs_list=None):
+
+    if os.path.exists(strs_list) and strs_list.endswitch('.txt'):
+
 
     # just write
     ble = BLEControl(tar_mac)
@@ -67,12 +75,19 @@ def fuzz_without_pcap(tar_mac):
     handles = ble.print_char()
     # print("handles:", handles)
 
-    # 随机变异十次
+    # 随机变异100次
     n = 0
     after_dic = {}
+    
     while n<100:
         logger.info("--开始随机变异--")
+        # if strs_list is None:
         after_dic = val.var_no_pcap(handles)   # 一次变异
+        # elif os.path.exists(strs_list) and strs_list.endswitch('.txt'):
+        #     after_dic = val.var_no_pcap(handles, strs_list)
+        # else:
+        #     logger.error("请输入可用的txt文件")
+        #     sys.exit(0)
         logger.info("--随机变异结束--")
         # print("after_dic:", after_dic)
         n += 1
@@ -83,7 +98,6 @@ def fuzz_without_pcap(tar_mac):
         # ble.tar_con(tar_mac)
         ble.write_to_csv(after_dic)
         logger.info("--一次Fuzz结束--")
-    
 
 def main():
     print("""
@@ -99,13 +113,20 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file', help='input pcap file',required=False)
     parser.add_argument('-m', '--mac', help='mac address of target', required=True)
+    parser.add_argument('-p', '--path', help='input bad strings txt path',required=False)
     args = parser.parse_args()
     
     pcap_path = args.file
     target_mac = args.mac
+    bad_strings = args.path
+
     # try:
     if not pcap_path:
-        fuzz_without_pcap(target_mac.lower())
+        if not bad_strings:
+            fuzz_without_pcap(target_mac.lower())
+        else:
+            fuzz_without_pcap(target_mac.lower(), bad_strings)
+
     else:
         fuzz_with_pcap(pcap_path, target_mac.lower())
     # except Exception as e:

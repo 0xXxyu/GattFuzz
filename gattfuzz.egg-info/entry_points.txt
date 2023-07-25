@@ -1,0 +1,3 @@
+[console_scripts]
+gattfuzz = gattfuzz.GattFuzz:main
+

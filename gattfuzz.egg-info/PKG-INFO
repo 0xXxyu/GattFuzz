@@ -1,3 +1,12 @@
+Metadata-Version: 2.1
+Name: gattfuzz
+Version: 0.0.11
+Summary: A tool for fuzzing BLE GATT
+Home-page: UNKNOWN
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >=3.6
+
 
 ![Gattfuzz logo](./GATTFuzzing.jpg)
 
@@ -54,4 +63,6 @@ gattfuzz -h
 ### 可能遇到的一些问题
 
 目前支持手机hci log抓的pcap包（需要自己转格式）和抓取的空中包两种pcap包，其他的包解析出可能欢迎提issue
+
+
 

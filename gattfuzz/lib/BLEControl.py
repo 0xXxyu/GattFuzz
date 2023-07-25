@@ -60,7 +60,7 @@ class BLEControl():
                             continue
                         else:
                             logger.info('\n')
-                            logger.error("The device connection failed, check the device status or previous pyload and try again.")
+                            logger.error("The device connection failed, check the device status or previous payload and try again.")
                             # sys.exit()
                 if self._conn:
                     self._conn.setDelegate(ReceiveDelegate())
@@ -71,7 +71,7 @@ class BLEControl():
                     n = n+1
                     continue
                 else:
-                    logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
+                    logger.error("The target device was not found, please confirm the device status or previous payload and try again.")
                     sys.exit(0)     
 
     def con_age(self, tar_mac):
@@ -95,7 +95,7 @@ class BLEControl():
                                 continue
                             else:
                                 logger.info('\n')
-                                logger.error("The device connection failed, check the device status or previous pyload and try again.")
+                                logger.error("The device connection failed, check the device status or previous payload and try again.")
                                 # sys.exit()
                     if self._conn:
                         self._mac = tar_mac
@@ -109,7 +109,7 @@ class BLEControl():
                         n = n+1
                         continue
                     else:
-                        logger.error("The target device was not found, please confirm the device status or previous pyload and try again.")
+                        logger.error("The target device was not found, please confirm the device status or previous payload and try again.")
                         sys.exit(0)
 
     
@@ -293,7 +293,7 @@ class BLEControl():
                     logger.info("连接断开，尝试重连")
                     # 1. 扫描是否广播； 2. 扫描是否可连接   
                     if k != 0:
-                        # logger.error("Check handle:{},     pyload: {}".format(str(handle), str(vlist(k-1))))
+                        # logger.error("Check handle:{},     payload: {}".format(str(handle), str(vlist(k-1))))
                         logger.error("write error")
                         self.con_hold()
                                                            

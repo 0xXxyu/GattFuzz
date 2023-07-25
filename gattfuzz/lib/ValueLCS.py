@@ -18,16 +18,17 @@ class ValueLCS():
         self._static = '**'
         self._count = '##'
         self._simple = '^^'
-        self._pyload = '++'  
+        self._payload = '++'  
         self._simple_list = []              # 2字节value
         self.string_mutator = StringMutator()
         self.Muta_dic = {}
+        self._crc = None
 
 
     def get_lcs_rule(self, str1, str2):
         """
         比较两个输入字符串，得到 lcs_rule
-        lcs_rule 由指定标记组成 -- _static, _coun, _simple, _pyload
+        lcs_rule 由指定标记组成 -- _static, _coun, _simple, _payload
         : return :lcs_rule
         : type : list
         : eg: ['12', '++', '++', '##', '++', '++', '++', '++', '++', '++']
@@ -75,9 +76,9 @@ class ValueLCS():
             # 差值为 1，认为是 _coun
             elif hex_diff == 1:
                 lcs_rule[i] = self._count
-            # 否则，认为是 _pyload
+            # 否则，认为是 _payload
             else:
-                lcs_rule[i] = self._pyload
+                lcs_rule[i] = self._payload
 
         return lcs_rule
     
@@ -101,32 +102,32 @@ class ValueLCS():
                 count_mutation_data_list = self.string_mutator.get_count_mutation(str1_sub_content)
                 # 生成 payload 变异数据
                 if payload_count > 0:
-                    pyload_mutation_data_list = self.string_mutator.get_pyload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
+                    payload_mutation_data_list = self.string_mutator.get_payload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
                     payload_count = 0
-                    mutation_data_dic[count] = pyload_mutation_data_list
+                    mutation_data_dic[count] = payload_mutation_data_list
                     count += 1
                 
                 mutation_data_dic[count] = count_mutation_data_list
                 count += 1
             elif lcs_tag == self._simple:
                 pass
-            elif lcs_tag == self._pyload:
+            elif lcs_tag == self._payload:
                 payload_count += 2
             else:
                 # 生成 payload 变异数据
                 if payload_count > 0:
-                    pyload_mutation_data_list = self.string_mutator.get_pyload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
+                    payload_mutation_data_list = self.string_mutator.get_payload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
                     payload_count = 0
-                    mutation_data_dic[count] = pyload_mutation_data_list
+                    mutation_data_dic[count] = payload_mutation_data_list
                     count += 1
                 mutation_data_dic[count] = [lcs_tag.encode()]
                 count += 1
         
         # 以 payload 结尾
         if payload_count != 0:
-            pyload_var_data_list = self.string_mutator.get_pyload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
+            payload_var_data_list = self.string_mutator.get_payload_mutation(payload_count) + self.string_mutator.get_string_mutation(payload_count)       #随机字符串变异、坏字符串变异
             payload_count = 0
-            mutation_data_dic[count] = pyload_var_data_list
+            mutation_data_dic[count] = payload_var_data_list
             count += 1
 
         print('===============')
@@ -159,9 +160,9 @@ class ValueLCS():
         for jk in range(len2):
             str2_splited_list.append(str2[jk*2] + str2[jk*2 + 1])
 
-        str = self._pyload * len(str1_splited_list)
+        str = self._payload * len(str1_splited_list)
 
-        ly_count = 0                        # pyload计数位
+        ly_count = 0                        # payload计数位
         #标记static
         for i in range(len(str1_splited_list)):
             # logger.info("处理位：{}".format(s01[i]))
@@ -174,7 +175,7 @@ class ValueLCS():
                         self._simple_list.append(str2_splited_list[0])
                 str = str[:i*2] + self._simple + str[(i+1)*2:]
 
-                simple_var_list = self._simple_list + self.string_mutator.get_string_mutation(1) + self.string_mutator.bad_strs_list() + self.string_mutator.get_pyload_mutation(2)   # 2字节数据同时调用“坏”字符串进行测试
+                simple_var_list = self._simple_list + self.string_mutator.get_string_mutation(1) + self.string_mutator.bad_strs_list() + self.string_mutator.get_payload_mutation(2)   # 2字节数据同时调用“坏”字符串进行测试
                 
                 #self.write_var(simple_var_list)
                 mutation_data_dic[0] = simple_var_list
@@ -183,7 +184,7 @@ class ValueLCS():
                 # return self._simple_list                                   #2字节数据
             elif str1_splited_list == str2_splited_list:
                 
-                mutation_data_dic[0] = self.string_mutator.get_string_mutation(len(str1_splited_list) * 2) + self.string_mutator.get_pyload_mutation(len(str1_splited_list) * 2) + self.string_mutator.bad_strs_list()
+                mutation_data_dic[0] = self.string_mutator.get_string_mutation(len(str1_splited_list) * 2) + self.string_mutator.get_payload_mutation(len(str1_splited_list) * 2) + self.string_mutator.bad_strs_list()
                 
                 break
  
@@ -193,24 +194,24 @@ class ValueLCS():
                 #self.write_var([s01[i]])
 
                 mutation_data_dic[i]=[str1_splited_list[i].encode()]
-                #print("标记static，pyload_cont置0")
+                #print("标记static，payload_cont置0")
                 if ly_count > 0:
-                    #print("标记static后pyload_cont:", ly_count)
-                    pyload_mutation_list = self.string_mutator.get_pyload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)       #随机字符串变异、坏字符串变异
+                    #print("标记static后payload_cont:", ly_count)
+                    payload_mutation_list = self.string_mutator.get_payload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)       #随机字符串变异、坏字符串变异
 
-                    mutation_data_dic[i-1] = pyload_mutation_list
+                    mutation_data_dic[i-1] = payload_mutation_list
                 ly_count = 0
             elif hex0 == 1:
                 str = str[:i*2] + self._count + str[(i+1)*2:]                   #标记计数位,一般两个字节
                 count_mutation_list = self.string_mutator.get_count_mutation(str1_splited_list[i])
                 #self.write_var(count_list)
                 mutation_data_dic[i] = count_mutation_list
-                # print("标记count，pyload_cont置0")
+                # print("标记count，payload_cont置0")
                 if ly_count > 0:
-                    #print("标记count后pyload_cont:", ly_count)
-                    pyload_mutation_list = self.string_mutator.get_pyload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)
+                    #print("标记count后payload_cont:", ly_count)
+                    payload_mutation_list = self.string_mutator.get_payload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)
 
-                    mutation_data_dic[i-1] = pyload_mutation_list
+                    mutation_data_dic[i-1] = payload_mutation_list
                 ly_count = 0
             else:
                 if i == 0:
@@ -219,12 +220,12 @@ class ValueLCS():
                 else:
                     if str[i*2] == '+':
                         ly_count += 2
-                    #print("pyload_cont:", ly_count+2)
+                    #print("payload_cont:", ly_count+2)
 
        
         if ly_count != 0:
-            pyload_mutation_list = self.string_mutator.get_pyload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)
-            mutation_data_dic[i-1] = pyload_mutation_list
+            payload_mutation_list = self.string_mutator.get_payload_mutation(ly_count) + self.string_mutator.get_string_mutation(ly_count)
+            mutation_data_dic[i-1] = payload_mutation_list
             # print("py_load_count:", ly_count)
 
 
@@ -238,7 +239,7 @@ class ValueLCS():
         # logger.info(str)
         print('===============')
         for i in mutation_data_dic:
-            print('--------------------')
+            # print('--------------------')
             var_data = mutation_data_dic[i]
             # logger.info(len(var_data))
             # logger.info(var_data)
@@ -300,14 +301,14 @@ class ValueLCS():
                 self.find_lcseque(handle, valu[0], valu[0])                        # 使用变异后的{handle：[v1,v2]}填充字典
             elif len(valu) == 0:                                                   # 处理pcap包中没有的handle fuzz
                 # print("fuzz pcap中没有的handle")                                    
-                self.pro_a_hand(handle)
+                self.pro_a_hand(handle)                                         
             else:
                 for i in range(len(valu)):
                     for j in range(len(valu)):
                         if len(valu[i]) == len(valu[j]):        # 包括一次重放
                             print('-'*60)
-                            self.find_lcseque(handle, valu[i],valu[j])   
-        
+                            self.find_lcseque(handle, valu[i],valu[j])            
+
         logger.info("--变异完成--")
         return self.Muta_dic                                                        # 返回变异后字典          
 
@@ -378,12 +379,12 @@ class ValueLCS():
 
     def var_no_pcap(self, handlelist):
         for handle in handlelist:
-            after_strs = self.string_mutator.bad_strs_list() + self.string_mutator.get_pyload_mutation(2) + self.string_mutator.get_pyload_mutation(4) + self.string_mutator.get_pyload_mutation(6) + self.string_mutator.get_pyload_mutation(8) + self.string_mutator.get_pyload_mutation(10) + self.string_mutator.get_pyload_mutation(12) + self.string_mutator.get_pyload_mutation(20)
+            after_strs = self.string_mutator.bad_strs_list() + self.string_mutator.get_payload_mutation(2) + self.string_mutator.get_payload_mutation(4) + self.string_mutator.get_payload_mutation(6) + self.string_mutator.get_payload_mutation(8) + self.string_mutator.get_payload_mutation(10) + self.string_mutator.get_payload_mutation(12) + self.string_mutator.get_payload_mutation(20)
             self.Muta_dic[handle] = after_strs
         return self.Muta_dic
-    
+        
     def pro_a_hand(self, hand):
-        after_strs = self.string_mutator.bad_strs_list() + self.string_mutator.get_pyload_mutation(2) + self.string_mutator.get_pyload_mutation(4) + self.string_mutator.get_pyload_mutation(6) + self.string_mutator.get_pyload_mutation(8) + self.string_mutator.get_pyload_mutation(10) + self.string_mutator.get_pyload_mutation(12) + self.string_mutator.get_pyload_mutation(20)
+        after_strs = self.string_mutator.bad_strs_list() + self.string_mutator.get_payload_mutation(2) + self.string_mutator.get_payload_mutation(4) + self.string_mutator.get_payload_mutation(6) + self.string_mutator.get_payload_mutation(8) + self.string_mutator.get_payload_mutation(10) + self.string_mutator.get_payload_mutation(12) + self.string_mutator.get_payload_mutation(20)
         self.Muta_dic[hand] = after_strs
 
 
