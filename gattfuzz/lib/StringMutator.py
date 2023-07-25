@@ -73,11 +73,6 @@ class StringMutator():
                 "`id` &",
                 ""
                 ]
-    
-    def add_bad_str(self, to_add_str):
-        self.bad_str
-
-
 
     def bad_strs_list(self):
         encoded_bad_str_list = []
@@ -210,4 +205,6 @@ class StringMutator():
         # 接收外部bad string 输入
         f = open(list_path,'r')
         add_strings = list(f)
-        return add_strings
+        self.bad_strs += add_strings
+
+        print(self.bad_strs)
