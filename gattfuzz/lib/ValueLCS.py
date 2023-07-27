@@ -1,11 +1,13 @@
 import csv
 import time
-# from distutils.file_util import write_file
 
+from gattfuzz.lib.Logger import Logger
 #import pandas as pd
 from gattfuzz.lib.StringMutator import StringMutator
 
-from gattfuzz.lib.Logger import Logger
+# from distutils.file_util import write_file
+
+
 logger = Logger(loggername='Value_LCS').get_logger()
 
 '''

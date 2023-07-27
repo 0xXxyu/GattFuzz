@@ -1,8 +1,10 @@
 import binascii
 from re import sub
 from struct import unpack
-from scapy.all import *
+
 from gattfuzz.lib.Logger import Logger
+from scapy.all import *
+
 logger = Logger(loggername='Pkt_pro').get_logger()
 '''
 提取pcap中request_command handle和value到字典

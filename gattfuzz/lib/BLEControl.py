@@ -1,15 +1,14 @@
 import sys
-from bluepy import btle
-from bluepy.btle import Peripheral,UUID,DefaultDelegate,Scanner
-from bluepy.btle import BTLEException
 
+from bluepy import btle
+from bluepy.btle import (UUID, BTLEException, DefaultDelegate, Peripheral,
+                         Scanner)
 from gattfuzz.lib.Logger import Logger
+
 logger = Logger(loggername='Gatt_Write').get_logger()
 
 '''
 connect to target device
-
-#TODO 监听所有notification接口，所有indications属性
 
 '''
 
@@ -23,9 +22,10 @@ class ReceiveDelegate(DefaultDelegate):
 
 class BLEControl():
 
-    def __init__(self, mac, custom_logger=None):
+    def __init__(self, mac, custom_logger=None, iface=None):
         self._conn = None
         self._mac = mac
+        self.iface = iface
         if custom_logger:
             self.logger = custom_logger
         else:
@@ -45,7 +45,7 @@ class BLEControl():
                 # logger.info("\n")
                 logger.info("              ————————————广播信息————————————                    ")
                 logger.info("|                                                      |")
-                for (adtype, desc, value) in dev.getScanData():
+                for (desc, value) in dev.getScanData():
                     logger.info("    %s = %s" % (desc, value))
                 logger.info("|                                                      |")
                 logger.info("              ————————————广播信息————————————                    ")
@@ -53,14 +53,15 @@ class BLEControl():
                     # logger.info("i = %d ", i)
                     try: 
                         logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
-                        self._conn = Peripheral(dev.addr, dev.addrType)
+                        self._conn = Peripheral(dev.addr, dev.addrType, self.iface)
                         break
                     except:
                         if i<10:
                             continue
                         else:
                             logger.info('\n')
-                            logger.error("The device connection failed, check the device status or previous payload and try again.")
+                            # logger.error("The device connection failed, check the device status or previous payload and try again.")
+                            logger.error("未找到目标设备，请确定设备状态并重试")
                             # sys.exit()
                 if self._conn:
                     self._conn.setDelegate(ReceiveDelegate())
@@ -71,7 +72,8 @@ class BLEControl():
                     n = n+1
                     continue
                 else:
-                    logger.error("The target device was not found, please confirm the device status or previous payload and try again.")
+                    # logger.error("The target device was not found, please confirm the device status or previous payload and try again.")
+                    logger.error("未找到目标设备，请确定设备状态并重试")
                     sys.exit(0)     
 
     def con_age(self, tar_mac):
@@ -88,14 +90,14 @@ class BLEControl():
                         # logger.info("i = %d ", i)
                         try: 
                             # logger.info("...龟速连接中，第 " + str(i+1) +" 次尝试...")
-                            self._conn = Peripheral(dev.addr, dev.addrType)
+                            self._conn = Peripheral(dev.addr, dev.addrType, self.iface)
                             break
                         except:
                             if i<4:
                                 continue
                             else:
                                 logger.info('\n')
-                                logger.error("The device connection failed, check the device status or previous payload and try again.")
+                                logger.error("未找到目标设备，请确定设备状态并重试上一条指令。")
                                 # sys.exit()
                     if self._conn:
                         self._mac = tar_mac
@@ -109,7 +111,7 @@ class BLEControl():
                         n = n+1
                         continue
                     else:
-                        logger.error("The target device was not found, please confirm the device status or previous payload and try again.")
+                        logger.error("未找到目标设备，请确定设备状态并重试上一条指令。")
                         sys.exit(0)
 
     

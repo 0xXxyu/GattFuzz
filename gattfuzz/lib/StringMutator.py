@@ -1,7 +1,8 @@
 import csv
+import random as ran
 from itertools import count
 from pickletools import pylist
-import random as ran
+
 #import pandas as pd
 
 class StringMutator():

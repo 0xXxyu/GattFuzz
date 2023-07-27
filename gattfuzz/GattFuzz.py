@@ -5,6 +5,7 @@ import time
 from scapy.all import *
 
 from gattfuzz.lib.BLEControl import BLEControl
+from gattfuzz.lib.BTLog import BTLog
 from gattfuzz.lib.PcapProcessor import PcapProcessor
 from gattfuzz.lib.StringMutator import StringMutator
 from gattfuzz.lib.ValueLCS import ValueLCS
@@ -26,11 +27,8 @@ val = ValueLCS()
 7.21 一个问题
 多次连接才能连上g
 '''
-def fuzz_with_pcap(pcap_path, tar_mac, strs_list=None):
+def fuzz_with_pcap(pcap_path, tar_mac, iface=0):
     
-    if os.path.exists(strs_list) and strs_list.endswitch('.txt'):
-        stringMutator.input_list(strs_list)
-        logger.info("列表加载成功")
     latest_dic = {}
     #提取数据包 static          
     logger.info("--开始处理pcap文件--")
@@ -46,7 +44,12 @@ def fuzz_with_pcap(pcap_path, tar_mac, strs_list=None):
                                       
     # connect device and logger.info chars
     # logger.info("#"*30+ "设备扫描"+ '#'*30)
-    ble = BLEControl(tar_mac)                 
+
+    btLog = BTLog(iface)  # btlog 初始化
+    btLog.catch_log()       # 开始抓包
+
+    ble = BLEControl(tar_mac, iface)  # blecontrol 初始化
+              
     ble.tar_con()
     bulepy_handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
     logger.info("bluepy handles:{}".format(str(bulepy_handles)))
@@ -67,15 +70,16 @@ def fuzz_with_pcap(pcap_path, tar_mac, strs_list=None):
     # # TODO +判断连接状态
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
 
+    btLog.save_pcap()
 
-def fuzz_without_pcap(tar_mac, strs_list=None):
 
-    if os.path.exists(strs_list) and strs_list.endswitch('.txt'):
-        stringMutator.input_list(strs_list)
-        logger.info("列表加载成功")
-    else:
-        pass
-    ble = BLEControl(tar_mac)
+def fuzz_without_pcap(tar_mac, iface=0):
+
+    btLog = BTLog(iface)  # btlog初始化
+    btLog.catch_log()
+
+    ble = BLEControl(tar_mac, iface)
+
     ble.tar_con()
     handles = ble.print_char()
     # print("handles:", handles)
@@ -97,6 +101,8 @@ def fuzz_without_pcap(tar_mac, strs_list=None):
         # ble.tar_con(tar_mac)
         ble.write_to_csv(after_dic)
         logger.info("--一次Fuzz结束--")
+        
+    btLog.save_pcap()
 
 def main():
     print("""
@@ -113,21 +119,30 @@ def main():
     parser.add_argument('-f', '--file', help='input pcap file',required=False)
     parser.add_argument('-m', '--mac', help='mac address of target', required=True)
     parser.add_argument('-p', '--path', help='input bad strings txt path',required=False)
+    parser.add_argument('-x', '--hcix', help='input hci', required=False)
     args = parser.parse_args()
     
     pcap_path = args.file
     target_mac = args.mac
     bad_strings = args.path
+    hcix = args.hci
 
-    # try:
-    if not pcap_path:
-        if not bad_strings:
-            fuzz_without_pcap(target_mac.lower())
-        else:
-            fuzz_without_pcap(target_mac.lower(), bad_strings)
 
+    # 初始化hci适配器
+    if hcix:
+
+
+    # update bad payload
+    if os.path.exists(bad_strings) and bad_strings.endswitch('.txt'):
+        stringMutator.input_list(bad_strings)
+        logger.info("列表加载成功")
     else:
-        if not bad_strings:
-            fuzz_with_pcap(pcap_path, target_mac.lower())
-        else:
-            fuzz_with_pcap(pcap_path, target_mac.lower(), bad_strings)
+        pass
+    
+    # choose hci dev 
+    # if hcix:
+
+    if not pcap_path:
+        fuzz_without_pcap(target_mac.lower())
+    else:
+        fuzz_with_pcap(pcap_path, target_mac.lower())
