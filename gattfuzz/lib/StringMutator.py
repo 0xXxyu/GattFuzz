@@ -2,6 +2,7 @@ import csv
 import random as ran
 from itertools import count
 from pickletools import pylist
+import binascii
 
 #import pandas as pd
 
@@ -201,7 +202,12 @@ class StringMutator():
                 count = ran.randint(int(str,16), int(count_max, 16))
                 csv_writ.writerow(['NULL', 'NULL', 'NULL', count])
                 '''
-    
+
+    def calculate_crc32(data):
+        crc = binascii.crc32(data) & 0xffffffff
+        return crc
+
+
     def input_list(self, list_path):
         # 接收外部bad string 输入
         f = open(list_path,'r')
@@ -209,3 +215,4 @@ class StringMutator():
         self.bad_strs += add_strings
 
         print(self.bad_strs)
+
