@@ -125,8 +125,12 @@ def main():
         n = re.findall(r'\d+', hcix)
         btLog = BTLog(n)  # btlog初始化
         ble = BLEControl(target_mac.lower(), n)
+    elif hcix not in os.popen("sudo hciconfig -a"):
+        logger.error("请确定使用'sudo hciconfig -a'查看本地支持的蓝牙适配器，并以hcix的格式输入。") 
+        sys.exit(0)  
     else:
-        logger.error("请确定使用'sudo hciconfig -a'查看本地支持的蓝牙适配器，并以hcix的格式输入。")
+        btLog = BTLog()  # btlog初始化
+        ble = BLEControl(target_mac.lower()) # blecontrol初始化
 
     # update bad payload
     if bad_strings and os.path.exists(str(bad_strings)) and bad_strings.endswitch('.txt'):
