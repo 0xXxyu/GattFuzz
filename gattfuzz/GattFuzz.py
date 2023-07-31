@@ -27,7 +27,8 @@ val = ValueLCS()
 7.21 一个问题
 多次连接才能连上g
 '''
-def fuzz_with_pcap(pcap_path, tar_mac, iface=0):
+
+def fuzz_with_pcap(ble, btlog, pcap_path):
     
     latest_dic = {}
     #提取数据包 static          
@@ -45,10 +46,7 @@ def fuzz_with_pcap(pcap_path, tar_mac, iface=0):
     # connect device and logger.info chars
     # logger.info("#"*30+ "设备扫描"+ '#'*30)
 
-    btLog = BTLog(iface)  # btlog 初始化
-    btLog.catch_log()       # 开始抓包
-
-    ble = BLEControl(tar_mac, iface)  # blecontrol 初始化
+    btlog.catch_log()       # 开始抓包
               
     ble.tar_con()
     bulepy_handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
@@ -69,17 +67,12 @@ def fuzz_with_pcap(pcap_path, tar_mac, iface=0):
     # ble.tar_con(tar_mac)
     # # TODO +判断连接状态
     ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
+    btlog.save_pcap()
 
-    btLog.save_pcap()
 
+def fuzz_without_pcap(ble, btlog):
 
-def fuzz_without_pcap(tar_mac, iface=0):
-
-    btLog = BTLog(iface)  # btlog初始化
-    btLog.catch_log()
-
-    ble = BLEControl(tar_mac, iface)
-
+    btlog.catch_log()
     ble.tar_con()
     handles = ble.print_char()
     # print("handles:", handles)
@@ -102,7 +95,7 @@ def fuzz_without_pcap(tar_mac, iface=0):
         ble.write_to_csv(after_dic)
         logger.info("--一次Fuzz结束--")
         
-    btLog.save_pcap()
+    btlog.save_pcap()
 
 def main():
     print("""
@@ -127,10 +120,13 @@ def main():
     bad_strings = args.path
     hcix = args.hci
 
-
     # 初始化hci适配器
-    if hcix:
-
+    if hcix in os.popen("sudo hciconfig -a"):
+        n = re.findall(r'\d+', hcix)
+        btLog = BTLog(n)  # btlog初始化
+        ble = BLEControl(target_mac.lower(), n)
+    else:
+        logger.error("请确定使用'sudo hciconfig -a'查看本地支持的蓝牙适配器，并以hcix的格式输入。")
 
     # update bad payload
     if os.path.exists(bad_strings) and bad_strings.endswitch('.txt'):
@@ -138,11 +134,8 @@ def main():
         logger.info("列表加载成功")
     else:
         pass
-    
-    # choose hci dev 
-    # if hcix:
 
-    if not pcap_path:
-        fuzz_without_pcap(target_mac.lower())
+    if os.path.exists(pcap_path) and bad_strings.endswitch('.pcap'):
+        fuzz_with_pcap(ble, btLog, pcap_path)
     else:
-        fuzz_with_pcap(pcap_path, target_mac.lower())
+        fuzz_without_pcap(ble, btLog)

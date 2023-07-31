@@ -22,18 +22,13 @@ class ReceiveDelegate(DefaultDelegate):
 
 class BLEControl():
 
-    def __init__(self, mac, custom_logger=None, iface=None):
+    def __init__(self, mac, iface=0):
         self._conn = None
         self._mac = mac
         self.iface = iface
-        if custom_logger:
-            self.logger = custom_logger
-        else:
-            self.logger = logger
     
     # connect to target mac
     def tar_con(self):
-        logger = self.logger
         logger.info("Begin sacn")
         n = 1
         scanner = Scanner()
