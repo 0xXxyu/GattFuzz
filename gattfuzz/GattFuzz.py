@@ -142,4 +142,3 @@ def main():
     if os.path.exists(pcap_path) and bad_strings.endswitch('.pcap'):
         fuzz_with_pcap(ble, btLog, pcap_path)
     else:
-    
