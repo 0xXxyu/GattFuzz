@@ -38,12 +38,6 @@ class BLEControl():
             if dev.addr==self._mac:
                 logger.info("Find target device::"+ self._mac)
                 # logger.info("\n")
-                logger.info("              ————————————广播信息————————————                    ")
-                logger.info("|                                                      |")
-                for (desc, value) in dev.getScanData():
-                    logger.info("    %s = %s" % (desc, value))
-                logger.info("|                                                      |")
-                logger.info("              ————————————广播信息————————————                    ")
                 for i in range(0,10):
                     # logger.info("i = %d ", i)
                     try: 
@@ -116,7 +110,6 @@ class BLEControl():
         self.open_notify()       # 打开notify
 
     def print_char(self):
-        logger = self.logger
         # Get service & characteristic
         if self._conn:
             wriList = {}
@@ -161,9 +154,7 @@ class BLEControl():
 
                     # write
 
-                    # print(Properties)
                     if 'WRITE' in Properties.replace(" ",""):
-                        # print("write dadian")
                         han = charac.getHandle()
                         wriList[svc.uuid]= uu                   #保存service uuid和characteristic uuid 
                         if han not in han_list:      
@@ -306,11 +297,8 @@ class BLEControl():
     #         print(ex)
 
 
-# tar_mac = "FB:65:D4:C2:BE:5A" 
-# tar_mac = "44:27:F3:37:E1:13"
-# tar_mac = "60:1d:9d:df:08:90"
-# tar_mac = "46:66:77:A8:3D:9C"
-# tar_mac = "08:EB:29:50:9B:FB"
-# ble = BLEControl()                 
-# ble.tar_con(tar_mac.lower())
-# bulepy_handles = ble.print_char()
+# tar_mac = "DD:59:F8:7A:21:7A"
+# ble = BLEControl(tar_mac.lower())                 
+# ble.tar_con()
+# han_list = ble.print_char()
+# print(han_list)

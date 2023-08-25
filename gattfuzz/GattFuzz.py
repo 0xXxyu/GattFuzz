@@ -70,12 +70,12 @@ def fuzz_with_pcap(ble, btlog, pcap_path):
     btlog.stop_sniffing()
 
 
-def fuzz_without_pcap(ble, btlog):
+def fuzz_without_pcap(ble):
 
-    btlog.start_sniffing()       # 开始抓包
+    # btlog.start_sniffing()       # 开始抓包
     ble.tar_con()
     handles = ble.print_char()
-    # print("handles:", handles)
+    print("handles:", handles)
 
     # 随机变异100次
     n = 0
@@ -95,7 +95,7 @@ def fuzz_without_pcap(ble, btlog):
         ble.write_to_csv(after_dic)
         logger.info("--一次Fuzz结束--")
         
-    btlog.stop_sniffing()
+    # btlog.stop_sniffing()
 
 def main():
     print("""
@@ -139,7 +139,8 @@ def main():
     else:
         pass
 
-    if os.path.exists(pcap_path) and bad_strings.endswitch('.pcap'):
+    if pcap_path and os.path.exists(pcap_path) and bad_strings.endswitch('.pcap'):
         fuzz_with_pcap(ble, btLog, pcap_path)
     else:
-        fuzz_without_pcap(ble, btLog)
+        # fuzz_without_pcap(ble, btLog)
+        fuzz_without_pcap(ble)
