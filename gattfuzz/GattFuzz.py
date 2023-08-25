@@ -25,7 +25,7 @@ val = ValueLCS()
 基于pcap的变异覆盖率
 
 7.21 一个问题
-多次连接才能连上g
+多次连接才能连上
 '''
 
 def fuzz_with_pcap(ble, btlog, pcap_path):
@@ -126,12 +126,11 @@ def main():
         btLog = BTLog(int(n[0]))                            # btlog初始化
         logger.info("使用" + hcix)
         ble = BLEControl(target_mac.lower(), n)
+    elif hcix not in os.popen("sudo hciconfig -a"):
+        logger.error("请确定使用'sudo hciconfig -a'查看本地支持的蓝牙适配器，并以hcix的格式输入。") 
+        sys.exit(0)  
     else:
         logger.error("请确定使用'sudo hciconfig -a'查看本地支持的蓝牙适配器，并以hcix的格式输入。")
-        sys.exit(0)
-    # else:
-    #     btLog = BTLog()  # btlog初始化
-    #     ble = BLEControl(target_mac.lower()) # blecontrol初始化
 
     # update bad payload
     if bad_strings and os.path.exists(str(bad_strings)) and bad_strings.endswitch('.txt'):
@@ -140,9 +139,7 @@ def main():
     else:
         pass
 
-
-    if pcap_path and os.path.exists(str(pcap_path)) and bad_strings.endswitch('.pcap'):
+    if os.path.exists(pcap_path) and bad_strings.endswitch('.pcap'):
         fuzz_with_pcap(ble, btLog, pcap_path)
     else:
-        fuzz_without_pcap(ble, btLog)
     
