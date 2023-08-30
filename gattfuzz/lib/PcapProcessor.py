@@ -1,4 +1,3 @@
-import binascii
 from re import sub
 from struct import unpack
 

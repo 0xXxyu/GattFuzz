@@ -1,11 +1,5 @@
-import csv
-import time
-
 from gattfuzz.lib.Logger import Logger
-#import pandas as pd
 from gattfuzz.lib.StringMutator import StringMutator
-
-# from distutils.file_util import write_file
 
 
 logger = Logger(loggername='Value_LCS').get_logger()
@@ -406,7 +400,7 @@ class ValueLCS():
 #     s2 = '129906'
 
 #     test_dic={'23':['123456','123357'], '24':[]}
-#     val = ValueLCS()
+    # val = ValueLCS()
 #     Muta_di = val.pro_dict(test_dic)
 #     print(Muta_di)
     # t1_s = time.time()
@@ -420,5 +414,11 @@ class ValueLCS():
 
     # logger.info(t1_e - t1_s)
     # logger.info(t2_e - t2_s)
+
+    # s1 = '00'
+    # s2 = '11'
+
+    # s= val.get_lcs_rule(s1,s2)
+    # print(s)
 
 

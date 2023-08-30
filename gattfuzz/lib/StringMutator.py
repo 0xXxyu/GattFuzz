@@ -1,10 +1,6 @@
-import csv
 import random as ran
-from itertools import count
-from pickletools import pylist
 import binascii
 
-#import pandas as pd
 
 class StringMutator():
 
@@ -159,6 +155,7 @@ class StringMutator():
         ';CMD=$"reboot";$CMD',
         ";id",
         ]
+
         bad_str_mutation_record = []
         for bad_str in bad_strs:
             if len(bad_str.encode()) <= str_len*2:
@@ -210,9 +207,13 @@ class StringMutator():
 
     def input_list(self, list_path):
         # 接收外部bad string 输入
+        add_strings = []
         f = open(list_path,'r')
-        add_strings = list(f)
-        self.bad_strs += add_strings
+        for add_str in f.readlines():
+            add_str = add_str.strip('\n')
+            add_strings.append(add_str)
 
-        print(self.bad_strs)
+        self.bad_strs = add_strings + self.bad_strs
+
+        # print("更新后列表:", self.bad_strs)
 

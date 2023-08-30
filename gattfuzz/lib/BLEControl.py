@@ -3,7 +3,9 @@ import sys
 from bluepy import btle
 from bluepy.btle import (UUID, BTLEException, DefaultDelegate, Peripheral,
                          Scanner)
-from gattfuzz.lib.Logger import Logger
+# from gattfuzz.lib.Logger import Logger
+from Logger import Logger
+from BTLog import BTLog
 
 logger = Logger(loggername='Gatt_Write').get_logger()
 
@@ -50,7 +52,7 @@ class BLEControl():
                         else:
                             logger.info('\n')
                             # logger.error("The device connection failed, check the device status or previous payload and try again.")
-                            logger.error("未找到目标设备，请确定设备状态并重试")
+                            logger.error("未找到目标设备，请确定设备状态并重试.")
                             # sys.exit()
                 if self._conn:
                     self._conn.setDelegate(ReceiveDelegate())
@@ -201,6 +203,7 @@ class BLEControl():
             self.print_char()
 
     def wri_value(self, handle, val):
+        print(type(val))
 
         if type(val) != bytes:
             val = val.encode()
@@ -208,7 +211,7 @@ class BLEControl():
             respon = self._conn.writeCharacteristic(handle, val, withResponse=True)                  ## python3.*  type(val)=byte
             logger.error("Write: {} to: {}  response: {}".format(str(val),str(handle),respon))       # 监听返回值
             self._conn.waitForNotifications(2.0)                                                     # 监听notify
-        except BTLEException  as ex:
+        except BTLEException as ex:
             logger.info("GATT write no response.")                                                  
 
     def open_notify(self):
@@ -254,7 +257,6 @@ class BLEControl():
                         continue
 
     def write_to_csv(self, after_Muta_dic):
-        logger = self.logger
         for handle in after_Muta_dic.keys():
             # self.path = './'+ str(handle) +'.csv'                               #把变异数据写入./fuzz_data.csv 
             
@@ -268,7 +270,6 @@ class BLEControl():
                 # 每次写之前进行状态判断
                 
                 if self._conn:
-                    logger.info("连接中")
                     self.wri_value(handle, vlist[k])               
                     logger.info("Write value:{} to handle: {}".format(str(vlist[k]),str(handle)))
                     #k = k.decode(encoding="utf-8").replace('|', '')
@@ -297,8 +298,16 @@ class BLEControl():
     #         print(ex)
 
 
-# tar_mac = "DD:59:F8:7A:21:7A"
-# ble = BLEControl(tar_mac.lower())                 
-# ble.tar_con()
+tar_mac = "8C:CE:FD:5D:CA:5D"
+ble = BLEControl(tar_mac.lower())                 
+ble.tar_con()
 # han_list = ble.print_char()
 # print(han_list)
+
+# btlog = BTLog()
+# btlog.start_sniffing()
+# di = {16:[b'1111', b'AAAA0212'], 54:[b'AAAA0212']}
+# ble.write_to_csv(di)
+# btlog.stop_sniffing()
+
+# ble.wri_value(16, b'AAAA0212')

@@ -1,10 +1,11 @@
 import argparse
+import asyncio
 import os
 import time
 
 from scapy.all import *
 
-from gattfuzz.lib.BLEControl import BLEControl
+from gattfuzz.lib.BLECon import BLECon
 from gattfuzz.lib.BTLog import BTLog
 from gattfuzz.lib.PcapProcessor import PcapProcessor
 from gattfuzz.lib.StringMutator import StringMutator
@@ -28,7 +29,7 @@ val = ValueLCS()
 多次连接才能连上
 '''
 
-def fuzz_with_pcap(ble, btlog, pcap_path):
+async def fuzz_with_pcap(ble, btlog, pcap_path):
     
     latest_dic = {}
     #提取数据包 static          
@@ -48,8 +49,8 @@ def fuzz_with_pcap(ble, btlog, pcap_path):
 
     btlog.start_sniffing()       # 开始抓包
               
-    ble.tar_con()
-    bulepy_handles = ble.print_char()                      # 建立连接打印read，并打开所有notification
+    await ble.print_char()
+    bulepy_handles = ble.handles                   # 建立连接打印read，并打开所有notification
     logger.info("bluepy handles:{}".format(str(bulepy_handles)))
 
     # 存在部分handle不通信的情况，pcap中没有数据，补充这部分
@@ -66,15 +67,16 @@ def fuzz_with_pcap(ble, btlog, pcap_path):
     # logger.info(after_Muta_dic)
     # ble.tar_con(tar_mac)
     # # TODO +判断连接状态
-    ble.write_to_csv(after_Muta_dic)                        # write过程写入csv并写到目标设备handle
+    await ble.write_val(after_Muta_dic)
     btlog.stop_sniffing()
 
 
-def fuzz_without_pcap(ble,btlog):
+async def fuzz_without_pcap(ble,btlog):
 
     btlog.start_sniffing()       # 开始抓包
-    ble.tar_con()
-    handles = ble.print_char()
+
+    await ble.print_char()
+    handles = ble.handles
 
     # 随机变异100次
     n = 0
@@ -84,14 +86,12 @@ def fuzz_without_pcap(ble,btlog):
         logger.info("--开始随机变异--")
         after_dic = val.var_no_pcap(handles)   # 一次变异
         logger.info("--随机变异结束--")
-        print("after_dic:", after_dic)
+        # print("after_dic:", after_dic)
         n += 1
 
         time.sleep(10.0)
-        print(ble._conn)
         logger.info("--开始变异结果写入--")
-        # ble.tar_con(tar_mac)
-        ble.write_to_csv(after_dic)
+        await ble.write_val(after_dic)
         logger.info("--一次Fuzz结束--")
         
     btlog.stop_sniffing()
@@ -111,28 +111,14 @@ def main():
     parser.add_argument('-f', '--file', help='input pcap file',required=False)
     parser.add_argument('-m', '--mac', help='mac address of target', required=True)
     parser.add_argument('-p', '--path', help='input bad strings txt path', required=False)
-    parser.add_argument('-x', '--hcix', help='input hci', default='hci0', required=False)
     args = parser.parse_args()
 
     pcap_path = args.file
     target_mac = args.mac
     bad_strings = args.path
-    hcix = args.hcix
-
-
-    
-    # 初始化hci适配器  
-    if hcix in os.popen("sudo hciconfig -a").read():
-        n = re.findall(r'\d+', hcix)
-        btLog = BTLog(int(n[0]))                            # btlog初始化
-        logger.info("使用" + hcix)
-
-        ble = BLEControl(target_mac.lower(), int(n[0]))
-    elif hcix not in os.popen("sudo hciconfig -a"):
-        logger.error("请确定使用'sudo hciconfig -a'查看本地支持的蓝牙适配器，并以hcix的格式输入。") 
-        sys.exit(0)  
-    else:
-        logger.error("请确定使用'sudo hciconfig -a'查看本地支持的蓝牙适配器，并以hcix的格式输入。")
+ 
+    ble = BLECon(target_mac)
+    btLog = BTLog(target_mac)
     
     # update bad payload
     if bad_strings and os.path.exists(str(bad_strings)) and bad_strings.endswith('.txt'):
@@ -142,7 +128,7 @@ def main():
         pass
 
     if pcap_path and os.path.exists(pcap_path) and bad_strings.endswith('.pcap'):
-        fuzz_with_pcap(ble, btLog, pcap_path)
+        asyncio.run(fuzz_with_pcap(ble, btLog, pcap_path))
     else:
-        fuzz_without_pcap(ble, btLog)
-        # fuzz_without_pcap(ble)
+        asyncio.run(fuzz_without_pcap(ble, btLog))
+        # asyncio.run(fuzz_without_pcap(ble))

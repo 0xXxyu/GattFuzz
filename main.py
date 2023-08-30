@@ -1,4 +1,4 @@
-from gattfuzz.GattFuzz import *
+from gattfuzz.GATTFuzz import *
 
 if __name__ == '__main__':
     main()

@@ -11,12 +11,12 @@ logger = Logger(loggername='BTLog').get_logger()
 class BTLog():
 
     # 默认使用hci0
-    def __init__(self, hci=0):
+    def __init__(self, mac, hci=0 ):
         self.hci = hci
         self.pks = None
         self._thread = None
         self._running = False
-        
+        self._mac = mac
 
     def catch_log(self):
         self._running = True
@@ -42,6 +42,6 @@ class BTLog():
 
     def save_pcap(self):
         pcap_name = time.time()
-        utils.wrpcap("../data/"+ str(pcap_name) +".pcap", self.pks)
-        logger.info("数据包已保存到"+"../data/"+ str(pcap_name) +".pcap")
+        utils.wrpcap(r"./gattfuzz/data/"+ self._mac + str(int(pcap_name)) +".pcap", self.pks)
+        logger.info("数据包已保存到"+"./gattfuzz/data/"+ self._mac + str(int(pcap_name)) +".pcap")
 
