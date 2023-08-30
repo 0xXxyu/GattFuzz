@@ -8,7 +8,7 @@ GattFuzzing 是一款针对BLE Gatt的模糊测试工具。
 Linux
 
 ### Requirements
-Bluepy、Scapy
+Bleak、Scapy
 
 ### 安装与使用
 #### 方法一
