@@ -1,0 +1,6 @@
+# ignore OS genernated files
+.DS_Store*
+.AppleDouble
+
+logs/
+__pycache__/
