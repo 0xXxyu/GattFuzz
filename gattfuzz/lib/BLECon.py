@@ -26,6 +26,7 @@ class BLECon():
             print("未扫描到目标设备，请查看设备状态重试。")
             sys.exit(0)
         logger.info(f"Find target device: {device}")
+        
         async with BleakClient(self._mac) as self._client:
             for service in self._client.services:
                 print("-"*60)
