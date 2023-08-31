@@ -71,18 +71,19 @@ async def fuzz_with_pcap(ble, btlog, pcap_path):
     btlog.stop_sniffing()
 
 
-async def fuzz_without_pcap(ble,btlog):
+async def fuzz_without_pcap(ble, btlog):
 
     btlog.start_sniffing()       # 开始抓包
 
     await ble.print_char()
     handles = ble.handles
+    
 
     # 随机变异100次
     n = 0
     after_dic = {}
     
-    while n<1:
+    while n<10:
         logger.info("--开始随机变异--")
         after_dic = val.var_no_pcap(handles)   # 一次变异
         logger.info("--随机变异结束--")
